@@ -1,6 +1,8 @@
 import { TimelineClip, TimelineTrack } from '@/types/timeline';
 import { MediaItem } from '@/types/media';
 import { computeFilterCSS } from '../filters/filterDefinitions';
+import { useMediaStore } from '@/store/useMediaStore';
+import { useEditorStore } from '@/store/useEditorStore';
 
 export class Compositor {
   private canvas: HTMLCanvasElement;
@@ -51,12 +53,40 @@ export class Compositor {
   public getVideoElement(mediaId: string, url: string): HTMLVideoElement {
     let video = this.videoCache.get(mediaId);
     if (!video) {
-      video = document.createElement('video');
-      video.src = url;
-      video.crossOrigin = 'anonymous';
-      video.preload = 'auto';
-      video.muted = true; // Audio is handled via Web Audio API AudioMixer
-      video.playsInline = true;
+      const videoEl = document.createElement('video');
+      videoEl.src = url;
+      videoEl.crossOrigin = 'anonymous';
+      videoEl.preload = 'auto';
+      videoEl.muted = true; // Audio is handled via Web Audio API AudioMixer
+      videoEl.playsInline = true;
+
+      // Real-time duration discovery and self-healing for long videos
+      const checkAndSyncDuration = () => {
+        if (isFinite(videoEl.duration) && videoEl.duration > 0) {
+          useMediaStore.getState().updateMediaDuration(mediaId, videoEl.duration);
+          useEditorStore.getState().syncClipDurationsWithMedia(mediaId, videoEl.duration);
+        } else if (videoEl.duration === Infinity) {
+          try {
+            videoEl.currentTime = 1e101;
+            const onSeeked = () => {
+              videoEl.removeEventListener('seeked', onSeeked);
+              videoEl.currentTime = 0;
+              if (isFinite(videoEl.duration) && videoEl.duration > 0) {
+                useMediaStore.getState().updateMediaDuration(mediaId, videoEl.duration);
+                useEditorStore.getState().syncClipDurationsWithMedia(mediaId, videoEl.duration);
+              }
+            };
+            videoEl.addEventListener('seeked', onSeeked, { once: true });
+          } catch {
+            // Ignored
+          }
+        }
+      };
+
+      videoEl.addEventListener('loadedmetadata', checkAndSyncDuration);
+      videoEl.addEventListener('durationchange', checkAndSyncDuration);
+
+      video = videoEl;
       this.videoCache.set(mediaId, video);
     }
     return video;

@@ -26,6 +26,7 @@ export const TimelineToolbar: React.FC = () => {
     rippleEnabled,
     toggleRipple,
     addTrack,
+    zoomToFit,
   } = useEditorStore();
 
   const { currentTime } = usePlaybackStore();
@@ -180,8 +181,8 @@ export const TimelineToolbar: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setZoom(60)}
-            title="Reset Zoom (Fit)"
+            onClick={() => zoomToFit(window.innerWidth - 300)}
+            title="Fit to Timeline (Ctrl+0 / Cmd+0)"
             className="p-1 rounded hover:bg-editor-surface text-editor-dim hover:text-editor-text transition-colors ml-1"
           >
             <Maximize2 className="w-3.5 h-3.5" />

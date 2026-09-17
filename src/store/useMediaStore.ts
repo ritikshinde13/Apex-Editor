@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { MediaItem, MediaType } from '@/types/media';
 import { IndexedDBStorage } from '@/core/storage/idbStorage';
+import {
+  parseMp4DurationFromFile,
+  extractAudioTrackDuration,
+  resolveVideoElementDuration,
+} from '@/utils/mediaDuration';
 
 interface MediaState {
   items: MediaItem[];
@@ -17,6 +22,7 @@ interface MediaState {
   removeMediaItem: (id: string) => Promise<void>;
   getMediaBlobUrl: (id: string) => Promise<string | undefined>;
   loadPersistedManifest: (manifestItems: MediaItem[]) => void;
+  updateMediaDuration: (id: string, duration: number) => void;
 }
 
 export const useMediaStore = create<MediaState>((set, get) => ({
@@ -29,6 +35,16 @@ export const useMediaStore = create<MediaState>((set, get) => ({
   setSearchQuery: (query: string) => set({ searchQuery: query }),
   setFilterType: (filter: 'all' | MediaType) => set({ filterType: filter }),
   setSelectedMediaId: (id: string | null) => set({ selectedMediaId: id }),
+
+  updateMediaDuration: (id: string, duration: number) => {
+    if (!isFinite(duration) || duration <= 0) return;
+    const current = get().items.find((i) => i.id === id);
+    if (current && (current.duration < duration || current.duration <= 30)) {
+      set((state) => ({
+        items: state.items.map((i) => (i.id === id ? { ...i, duration } : i)),
+      }));
+    }
+  },
 
   importFiles: async (files: FileList | File[]): Promise<MediaItem[]> => {
     set({ isImporting: true });
@@ -61,7 +77,7 @@ export const useMediaStore = create<MediaState>((set, get) => ({
         let waveformPeaks: number[] | undefined = undefined;
 
         if (mediaType === 'video') {
-          const videoMeta = await extractVideoMetadata(objectUrl);
+          const videoMeta = await extractVideoMetadata(file, objectUrl);
           duration = videoMeta.duration;
           width = videoMeta.width;
           height = videoMeta.height;
@@ -138,43 +154,86 @@ export const useMediaStore = create<MediaState>((set, get) => ({
   },
 }));
 
-// Video metadata extractor with real thumbnail generation
-function extractVideoMetadata(
+// Video metadata extractor with multi-tier duration resolution and thumbnail generation
+async function extractVideoMetadata(
+  file: File,
   videoUrl: string
 ): Promise<{ duration: number; width: number; height: number; thumbnailUrl: string }> {
+  // Run Strategy A (MP4 box parse) and Strategy B (Audio track duration) in parallel with HTML5 video
+  const [mp4Duration, audioDuration] = await Promise.all([
+    parseMp4DurationFromFile(file).catch(() => null),
+    extractAudioTrackDuration(file).catch(() => null),
+  ]);
+
   return new Promise((resolve) => {
     const video = document.createElement('video');
     video.src = videoUrl;
     video.crossOrigin = 'anonymous';
     video.muted = true;
-    video.preload = 'metadata';
+    video.preload = 'auto'; // Ensures browser buffers container metadata & trailer chunks
 
-    video.onloadedmetadata = () => {
-      const duration = isFinite(video.duration) ? video.duration : 10;
-      // Seek to 1s or 25% for thumbnail
-      video.currentTime = Math.min(1.0, duration * 0.25);
-    };
+    let resolved = false;
+    let bestDuration = Math.max(mp4Duration || 0, audioDuration || 0);
 
-    video.onseeked = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 160;
-      canvas.height = 90;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      }
-      const thumbnailUrl = canvas.toDataURL('image/jpeg', 0.7);
+    const finish = (thumbnailUrl: string = '') => {
+      if (resolved) return;
+      resolved = true;
+      const finalDuration = Math.max(
+        bestDuration,
+        isFinite(video.duration) && video.duration > 0 ? video.duration : 0,
+        10
+      );
       resolve({
-        duration: isFinite(video.duration) ? video.duration : 10,
+        duration: finalDuration,
         width: video.videoWidth || 1920,
         height: video.videoHeight || 1080,
         thumbnailUrl,
       });
     };
 
-    video.onerror = () => {
-      resolve({ duration: 5, width: 1920, height: 1080, thumbnailUrl: '' });
+    video.onloadedmetadata = async () => {
+      if (isFinite(video.duration) && video.duration > 0) {
+        bestDuration = Math.max(bestDuration, video.duration);
+      } else {
+        // Chromium Infinity duration fix: force browser to read the trailer
+        const resolvedElemDuration = await resolveVideoElementDuration(video, 2500);
+        if (resolvedElemDuration > 0) {
+          bestDuration = Math.max(bestDuration, resolvedElemDuration);
+        }
+      }
+
+      // Seek to 1s or 25% for thumbnail
+      const targetThumbTime = Math.min(1.0, (bestDuration > 0 ? bestDuration : 10) * 0.25);
+      try {
+        video.currentTime = targetThumbTime;
+      } catch {
+        finish();
+      }
     };
+
+    video.onseeked = () => {
+      if (isFinite(video.duration) && video.duration > 0) {
+        bestDuration = Math.max(bestDuration, video.duration);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = 160;
+      canvas.height = 90;
+      const ctx = canvas.getContext('2d');
+      if (ctx && video.videoWidth > 0) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      }
+      const thumbnailUrl = canvas.toDataURL('image/jpeg', 0.7);
+      finish(thumbnailUrl);
+    };
+
+    video.onerror = () => {
+      finish();
+    };
+
+    // Safety timeout so file import never hangs indefinitely
+    setTimeout(() => {
+      finish();
+    }, 4000);
   });
 }
 

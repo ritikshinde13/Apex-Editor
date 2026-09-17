@@ -1,5 +1,7 @@
 import { TimelineClip, TimelineTrack } from '@/types/timeline';
 import { MediaItem } from '@/types/media';
+import { useMediaStore } from '@/store/useMediaStore';
+import { useEditorStore } from '@/store/useEditorStore';
 
 export class AudioMixer {
   private ctx: AudioContext | null = null;
@@ -91,8 +93,19 @@ export class AudioMixer {
 
       let audio = this.activeSources.get(clip.id);
       if (!audio) {
-        audio = new Audio(media.blobUrl);
-        audio.preload = 'auto';
+        const audioEl = new Audio(media.blobUrl);
+        audioEl.preload = 'auto';
+
+        const syncDur = () => {
+          if (isFinite(audioEl.duration) && audioEl.duration > 0) {
+            useMediaStore.getState().updateMediaDuration(media.id, audioEl.duration);
+            useEditorStore.getState().syncClipDurationsWithMedia(media.id, audioEl.duration);
+          }
+        };
+        audioEl.addEventListener('loadedmetadata', syncDur);
+        audioEl.addEventListener('durationchange', syncDur);
+
+        audio = audioEl;
         this.activeSources.set(clip.id, audio);
 
         const trackGain = this.getTrackGain(clip.trackId);

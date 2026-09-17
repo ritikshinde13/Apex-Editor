@@ -18,6 +18,7 @@ export const Timeline: React.FC = () => {
     undo,
     redo,
     setSelectedClipId,
+    zoomToFit,
   } = useEditorStore();
 
   const { currentTime, togglePlay, stepFrames } = usePlaybackStore();
@@ -98,6 +99,12 @@ export const Timeline: React.FC = () => {
         e.preventDefault();
         redo();
       }
+
+      // Zoom to fit timeline: Ctrl+0 / Cmd+0
+      if ((e.ctrlKey || e.metaKey) && e.code === 'Digit0') {
+        e.preventDefault();
+        zoomToFit(scrollContainerRef.current?.clientWidth || 1000);
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -111,6 +118,7 @@ export const Timeline: React.FC = () => {
     splitClip,
     undo,
     redo,
+    zoomToFit,
   ]);
 
   // Deselect clip on clicking empty timeline background

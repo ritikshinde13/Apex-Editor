@@ -46,7 +46,7 @@ export const PreviewPlayer: React.FC = () => {
   const totalDuration = useMemo(() => {
     if (clips.length === 0) return 10.0;
     const maxEnd = Math.max(...clips.map((c) => c.startTimeOnTimeline + c.duration));
-    return Math.max(10.0, maxEnd + 2.0);
+    return Math.max(5.0, maxEnd);
   }, [clips]);
 
   const compositorRef = useRef<Compositor | null>(null);

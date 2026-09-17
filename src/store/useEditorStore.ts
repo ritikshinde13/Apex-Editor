@@ -31,6 +31,8 @@ interface EditorState {
   moveClip: (clipId: string, targetTrackId: string, targetStartTime: number) => void;
   trimClip: (clipId: string, side: 'left' | 'right', newDuration: number, newStartTime?: number, newInPoint?: number) => void;
   splitClip: (clipId: string, playheadTime: number) => void;
+  syncClipDurationsWithMedia: (mediaId: string, duration: number) => void;
+  zoomToFit: (viewportWidth?: number) => void;
 
   // Inspector property updates
   updateClipTransform: (clipId: string, transform: Partial<TransformProperties>) => void;
@@ -227,6 +229,46 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       canUndo: historyManager.canUndo(),
       canRedo: historyManager.canRedo(),
     });
+  },
+
+  syncClipDurationsWithMedia: (mediaId: string, duration: number) => {
+    if (!isFinite(duration) || duration <= 0) return;
+    const { clips } = get();
+    let changed = false;
+
+    const newClips = clips.map((clip) => {
+      if (clip.mediaId !== mediaId) return clip;
+      const oldSourceDur = clip.sourceDuration || 0;
+      if (duration > oldSourceDur) {
+        changed = true;
+        // Expand if clip was at previous default or untrimmed
+        const shouldExpand =
+          clip.inPoint === 0 &&
+          (clip.duration === oldSourceDur || clip.duration <= 30);
+        return {
+          ...clip,
+          sourceDuration: duration,
+          duration: shouldExpand ? duration : clip.duration,
+        };
+      }
+      return clip;
+    });
+
+    if (changed) {
+      set({ clips: newClips });
+    }
+  },
+
+  zoomToFit: (viewportWidth: number = 1000) => {
+    const { clips } = get();
+    if (clips.length === 0) {
+      set({ pixelsPerSecond: 60 });
+      return;
+    }
+    const maxEnd = Math.max(...clips.map((c) => c.startTimeOnTimeline + c.duration));
+    const totalSec = Math.max(10, maxEnd + 5);
+    const targetPx = Math.max(10, Math.min(300, Math.floor((viewportWidth - 100) / totalSec)));
+    set({ pixelsPerSecond: targetPx });
   },
 
   updateClipTransform: (clipId: string, transform: Partial<TransformProperties>) => {
