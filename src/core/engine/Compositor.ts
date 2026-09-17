@@ -116,10 +116,33 @@ export class Compositor {
     clips: TimelineClip[],
     mediaItems: MediaItem[],
     isPlaying: boolean,
-    bypassFilters: boolean = false
+    bypassFilters: boolean = false,
+    playbackRate: number = 1.0
   ) {
     const { width, height } = this.offscreenCanvas;
     const ctx = this.offscreenCtx;
+
+    // Pause any cached video elements that are not currently active on the timeline
+    const activeMediaIds = new Set(
+      clips
+        .filter((c) => {
+          if (c.type !== 'video') return false;
+          const track = tracks.find((t) => t.id === c.trackId);
+          if (track?.isHidden) return false;
+          const clipEnd = c.startTimeOnTimeline + c.duration;
+          return time >= c.startTimeOnTimeline && time < clipEnd;
+        })
+        .map((c) => c.mediaId)
+        .filter(Boolean)
+    );
+
+    this.videoCache.forEach((vid, mId) => {
+      if (!activeMediaIds.has(mId) || !isPlaying) {
+        if (!vid.paused) {
+          vid.pause();
+        }
+      }
+    });
 
     // 1. Clear offscreen buffer with deep cinema black
     ctx.save();
@@ -140,7 +163,7 @@ export class Compositor {
       });
 
       for (const clip of activeClips) {
-        this.renderClip(ctx, clip, time, mediaItems, isPlaying, width, height, bypassFilters);
+        this.renderClip(ctx, clip, time, mediaItems, isPlaying, width, height, bypassFilters, playbackRate);
       }
     }
 
@@ -161,7 +184,8 @@ export class Compositor {
     isPlaying: boolean,
     width: number,
     height: number,
-    bypassFilters: boolean = false
+    bypassFilters: boolean = false,
+    playbackRate: number = 1.0
   ) {
     const media = mediaItems.find((m) => m.id === clip.mediaId);
     const mediaUrl = media?.blobUrl;
@@ -223,22 +247,47 @@ export class Compositor {
     if (clip.type === 'video' && mediaUrl) {
       const video = this.getVideoElement(clip.mediaId!, mediaUrl);
 
-      // Smart seek and playback synchronization
+      const maxVideoDuration =
+        isFinite(video.duration) && video.duration > 0
+          ? video.duration
+          : clip.sourceDuration > 0
+          ? clip.sourceDuration
+          : Infinity;
+
+      // Bound clipLocalTime so we never seek past media duration
+      const targetTime = Math.max(0, Math.min(clipLocalTime, maxVideoDuration));
+      const targetRate = Math.max(0.25, Math.min(8.0, clip.speed * playbackRate));
+
+      // Smart seek and hardware-accelerated playback synchronization
       if (isPlaying) {
-        if (video.paused) {
-          video.play().catch(() => {});
+        // Match hardware playback rate so video decodes natively at 1.5x / 2.0x!
+        if (Math.abs(video.playbackRate - targetRate) > 0.01) {
+          video.playbackRate = targetRate;
         }
-        // Only resync during active playback if drift is severe (> 0.35s)
-        if (Math.abs(video.currentTime - clipLocalTime) > 0.35) {
-          video.currentTime = clipLocalTime;
+
+        if (clipLocalTime >= maxVideoDuration) {
+          if (!video.paused) {
+            video.pause();
+          }
+        } else {
+          if (video.paused) {
+            video.play().catch(() => {});
+          }
+          // Only resync during active playback if drift is severe (> 0.4s) and browser is not already seeking
+          if (!video.seeking && Math.abs(video.currentTime - targetTime) > 0.4) {
+            video.currentTime = targetTime;
+          }
         }
       } else {
         if (!video.paused) {
           video.pause();
         }
+        if (Math.abs(video.playbackRate - clip.speed) > 0.01) {
+          video.playbackRate = clip.speed;
+        }
         // When paused, do not re-trigger seek if browser is already in seeking state!
-        if (!video.seeking && Math.abs(video.currentTime - clipLocalTime) > 0.04) {
-          video.currentTime = clipLocalTime;
+        if (!video.seeking && Math.abs(video.currentTime - targetTime) > 0.04) {
+          video.currentTime = targetTime;
         }
       }
 

@@ -393,10 +393,19 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   updateClipSpeed: (clipId: string, speed: number) => {
     const { tracks, clips } = get();
     historyManager.recordState(tracks, clips, 'Change speed');
+    const clampedSpeed = Math.max(0.25, Math.min(8.0, speed));
     set({
-      clips: clips.map((clip) =>
-        clip.id === clipId ? { ...clip, speed: Math.max(0.25, Math.min(8.0, speed)) } : clip
-      ),
+      clips: clips.map((clip) => {
+        if (clip.id !== clipId) return clip;
+        const oldSpeed = clip.speed || 1.0;
+        const ratio = oldSpeed / clampedSpeed;
+        const newDuration = Math.max(0.2, clip.duration * ratio);
+        return {
+          ...clip,
+          speed: clampedSpeed,
+          duration: newDuration,
+        };
+      }),
       canUndo: historyManager.canUndo(),
       canRedo: historyManager.canRedo(),
     });

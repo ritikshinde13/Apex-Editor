@@ -30,6 +30,8 @@ export const PreviewPlayer: React.FC = () => {
   const {
     currentTime,
     isPlaying,
+    playbackRate,
+    setPlaybackRate,
     volume,
     isMuted,
     togglePlay,
@@ -84,6 +86,9 @@ export const PreviewPlayer: React.FC = () => {
   const isPlayingRef = useRef(isPlaying);
   isPlayingRef.current = isPlaying;
 
+  const playbackRateRef = useRef(playbackRate);
+  playbackRateRef.current = playbackRate;
+
   const tracksRef = useRef(tracks);
   tracksRef.current = tracks;
 
@@ -105,7 +110,7 @@ export const PreviewPlayer: React.FC = () => {
       let time = currentTimeRef.current;
 
       if (isPlayingRef.current) {
-        time += deltaSeconds;
+        time += deltaSeconds * (playbackRateRef.current || 1.0);
         if (time >= totalDuration) {
           setCurrentTime(0);
           togglePlay(); // Pause at end
@@ -123,7 +128,8 @@ export const PreviewPlayer: React.FC = () => {
           clipsRef.current,
           itemsRef.current,
           isPlayingRef.current,
-          isComparingBeforeAfterRef.current
+          isComparingBeforeAfterRef.current,
+          playbackRateRef.current || 1.0
         );
       }
 
@@ -136,7 +142,8 @@ export const PreviewPlayer: React.FC = () => {
           itemsRef.current,
           isPlayingRef.current,
           volume,
-          isMuted
+          isMuted,
+          playbackRateRef.current || 1.0
         );
         setPeakLevel(audioMixerRef.current.getPeakLevel());
       }
@@ -218,12 +225,30 @@ export const PreviewPlayer: React.FC = () => {
 
       {/* Bottom Transport Controls */}
       <div className="bg-editor-panel border border-editor-border rounded-xl px-4 py-2 mt-2 flex items-center justify-between shadow-lg">
-        {/* Left: Timecode Readout */}
+        {/* Left: Timecode Readout & Playback Speed Pills */}
         <div className="flex items-center gap-3">
           <div className="flex items-baseline gap-1.5 font-mono text-sm font-semibold text-editor-text">
             <span className="text-accent-cyan">{formatTimecode(currentTime, project.fps)}</span>
             <span className="text-editor-dim text-xs">/</span>
             <span className="text-editor-subtext text-xs">{formatTimecode(totalDuration, project.fps)}</span>
+          </div>
+
+          {/* Speed Selector (0.5x, 1x, 1.5x, 2x) */}
+          <div className="flex items-center gap-0.5 bg-editor-surface/80 px-1 py-0.5 rounded-lg border border-editor-border text-[10px] font-mono">
+            {[0.5, 1.0, 1.5, 2.0].map((rate) => (
+              <button
+                key={rate}
+                onClick={() => setPlaybackRate(rate)}
+                title={`Playback Speed ${rate}x`}
+                className={`px-1.5 py-0.5 rounded transition-all font-semibold ${
+                  playbackRate === rate
+                    ? 'bg-accent-cyan text-black shadow-sm'
+                    : 'text-editor-subtext hover:text-editor-text hover:bg-editor-panel'
+                }`}
+              >
+                {rate}x
+              </button>
+            ))}
           </div>
         </div>
 

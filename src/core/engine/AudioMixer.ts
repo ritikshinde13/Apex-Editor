@@ -54,7 +54,8 @@ export class AudioMixer {
     mediaItems: MediaItem[],
     isPlaying: boolean,
     masterVolume: number,
-    isMasterMuted: boolean
+    isMasterMuted: boolean,
+    playbackRate: number = 1.0
   ) {
     this.initContext();
 
@@ -117,11 +118,36 @@ export class AudioMixer {
       }
 
       const clipLocalTime = (currentTime - clip.startTimeOnTimeline) * clip.speed + clip.inPoint;
-      if (Math.abs(audio.currentTime - clipLocalTime) > 0.2) {
-        audio.currentTime = clipLocalTime;
-      }
+      const maxAudioDuration =
+        isFinite(audio.duration) && audio.duration > 0
+          ? audio.duration
+          : clip.sourceDuration > 0
+          ? clip.sourceDuration
+          : Infinity;
 
-      audio.playbackRate = clip.speed;
+      const targetAudioTime = Math.max(0, Math.min(clipLocalTime, maxAudioDuration));
+      const targetRate = Math.max(0.25, Math.min(8.0, clip.speed * playbackRate));
+
+      // Match audio playback rate with pitch preservation
+      if (Math.abs(audio.playbackRate - targetRate) > 0.01) {
+        audio.playbackRate = targetRate;
+      }
+      audio.preservesPitch = true;
+
+      if (clipLocalTime >= maxAudioDuration) {
+        if (!audio.paused) {
+          audio.pause();
+        }
+      } else {
+        // Only resync during active playback if drift is severe (> 0.35s)
+        if (!audio.seeking && Math.abs(audio.currentTime - targetAudioTime) > 0.35) {
+          audio.currentTime = targetAudioTime;
+        }
+
+        if (audio.paused) {
+          audio.play().catch(() => {});
+        }
+      }
 
       // Handle Fade In / Fade Out calculations
       let currentVol = clip.audio.volume ?? 1.0;
@@ -136,10 +162,6 @@ export class AudioMixer {
       }
 
       audio.volume = Math.max(0, Math.min(1.0, currentVol));
-
-      if (audio.paused) {
-        audio.play().catch(() => {});
-      }
     }
   }
 

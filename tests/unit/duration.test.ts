@@ -136,4 +136,38 @@ describe('Store Duration Self-Healing for Long Videos (1m50s)', () => {
     // For 110s + 5s = 115s total, (1200 - 100) / 115 ~= 9.5 -> clamped to min 10 px/sec
     expect(useEditorStore.getState().pixelsPerSecond).toBeGreaterThanOrEqual(10);
   });
+
+  it('scales clip duration proportionally when changing clip speed to 2x or 1.5x without lagging', () => {
+    const editor = useEditorStore.getState();
+    const clipId = 'clip-speed-test';
+
+    const testClip: TimelineClip = {
+      id: clipId,
+      trackId: 'track-video-1',
+      type: 'video',
+      title: 'clip_speed.mp4',
+      startTimeOnTimeline: 0,
+      duration: 10.0,
+      inPoint: 0,
+      sourceDuration: 10.0,
+      speed: 1.0,
+      transform: { x: 0, y: 0, scale: 1, rotation: 0, opacity: 1, cropTop: 0, cropBottom: 0, cropLeft: 0, cropRight: 0 },
+      adjustments: { brightness: 0, contrast: 0, saturation: 0, exposure: 0, temperature: 0, blur: 0, vignette: 0, filterPreset: 'none' },
+      audio: { volume: 1, isMuted: false, fadeIn: 0, fadeOut: 0, pan: 0 },
+    };
+
+    editor.loadProjectData(editor.tracks, [testClip]);
+
+    // Speed up to 2x -> duration should become 5s
+    editor.updateClipSpeed(clipId, 2.0);
+    let clip = useEditorStore.getState().clips.find((c) => c.id === clipId);
+    expect(clip?.speed).toBe(2.0);
+    expect(clip?.duration).toBe(5.0);
+
+    // Speed up to 1.5x from 2x -> duration should become 5.0 * (2.0 / 1.5) = 6.67s
+    editor.updateClipSpeed(clipId, 1.5);
+    clip = useEditorStore.getState().clips.find((c) => c.id === clipId);
+    expect(clip?.speed).toBe(1.5);
+    expect(clip?.duration).toBeCloseTo(6.67, 1);
+  });
 });
