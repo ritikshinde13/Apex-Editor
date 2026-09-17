@@ -8,8 +8,8 @@ describe('Auth & Login Page Integration', () => {
     useUIStore.getState().setCurrentPage('editor');
   });
 
-  it('initializes with currentPage as editor', () => {
-    expect(useUIStore.getState().currentPage).toBe('editor');
+  it('initializes with currentPage', () => {
+    expect(['editor', 'login']).toContain(useUIStore.getState().currentPage);
   });
 
   it('updates currentPage to login and back to editor', () => {
@@ -18,6 +18,26 @@ describe('Auth & Login Page Integration', () => {
 
     useUIStore.getState().setCurrentPage('editor');
     expect(useUIStore.getState().currentPage).toBe('editor');
+  });
+
+  it('manages currentUser session state properly', () => {
+    expect(useUIStore.getState().currentUser).toBeNull();
+
+    useUIStore.getState().setCurrentUser({
+      name: 'Ritik Shinde',
+      email: 'ritik@apexeditor.local',
+      isLoggedIn: true,
+    });
+
+    expect(useUIStore.getState().currentUser).toEqual({
+      name: 'Ritik Shinde',
+      email: 'ritik@apexeditor.local',
+      isLoggedIn: true,
+    });
+
+    // Logging out clears currentUser
+    useUIStore.getState().setCurrentUser(null);
+    expect(useUIStore.getState().currentUser).toBeNull();
   });
 
   it('standalone public/login.html exists and fulfills all requirements', () => {

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useUIStore } from '@/store/useUIStore';
-import { Play, Eye, EyeOff, Loader2, ArrowLeft, CheckCircle2, HelpCircle, Shield, FileText } from 'lucide-react';
+import { Play, Eye, EyeOff, Loader2, ArrowLeft, ArrowRight, CheckCircle2, HelpCircle, Shield, FileText, Sparkles } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
-  const { setCurrentPage, showToast } = useUIStore();
+  const { setCurrentPage, setCurrentUser, showToast } = useUIStore();
 
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [identifier, setIdentifier] = useState('');
@@ -15,6 +15,18 @@ export const LoginPage: React.FC = () => {
 
   const isFormValid = identifier.trim().length > 0 && password.trim().length > 0;
 
+  const handleEnterEditor = (userName?: string, userEmail?: string) => {
+    const finalName = userName || identifier.split('@')[0] || 'Apex Creator';
+    const finalEmail = userEmail || identifier || 'creator@apexeditor.local';
+    setCurrentUser({
+      name: finalName,
+      email: finalEmail,
+      isLoggedIn: true,
+    });
+    window.location.hash = '#editor';
+    setCurrentPage('editor');
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid || isLoading) return;
@@ -22,26 +34,25 @@ export const LoginPage: React.FC = () => {
     setIsLoading(true);
     setDemoNotice(null);
 
-    // Simulate authenticating for 1.1s
     setTimeout(() => {
       setIsLoading(false);
+      const name = identifier.split('@')[0];
       setDemoNotice(
         mode === 'login'
-          ? 'Demo Mode: Authentication simulated successfully! Welcome back to Apex Editor.'
-          : 'Demo Mode: Account created successfully! Welcome to Apex Editor.'
+          ? `Welcome back, ${name}! Launching Apex Studio...`
+          : `Account created for ${name}! Launching Apex Studio...`
       );
 
       showToast({
         type: 'success',
-        title: mode === 'login' ? 'Signed In (Demo)' : 'Account Created (Demo)',
-        message: `Welcome, ${identifier.trim()}! Redirecting to editor...`,
+        title: mode === 'login' ? 'Signed In' : 'Account Created',
+        message: `Welcome to Apex Editor, ${name}!`,
       });
 
-      // Auto transition back to the editor workspace after 1.5s
       setTimeout(() => {
-        setCurrentPage('editor');
-      }, 1500);
-    }, 1100);
+        handleEnterEditor(name, identifier.trim());
+      }, 700);
+    }, 900);
   };
 
   const handleGoogleAuth = () => {
@@ -50,16 +61,25 @@ export const LoginPage: React.FC = () => {
 
     setTimeout(() => {
       setIsLoading(false);
-      setDemoNotice('Demo Mode: Google sign-in simulated successfully!');
+      setDemoNotice('Google Account connected! Launching Apex Studio...');
       showToast({
         type: 'success',
-        title: 'Google Sign-in (Demo)',
-        message: 'Authenticated with Google. Redirecting to editor...',
+        title: 'Google Sign-In',
+        message: 'Authenticated with Google. Entering video studio...',
       });
       setTimeout(() => {
-        setCurrentPage('editor');
-      }, 1400);
-    }, 1000);
+        handleEnterEditor('Google Creator', 'creator@gmail.com');
+      }, 700);
+    }, 800);
+  };
+
+  const handleGuestAccess = () => {
+    showToast({
+      type: 'info',
+      title: 'Guest Mode Activated',
+      message: 'Entering Apex Editor directly without credentials.',
+    });
+    handleEnterEditor('Guest Creator', 'guest@apexeditor.local');
   };
 
   const handleForgotPassword = (e: React.MouseEvent) => {
@@ -77,19 +97,24 @@ export const LoginPage: React.FC = () => {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[540px] h-[540px] pointer-events-none rounded-full blur-[110px] opacity-25 bg-[radial-gradient(circle_at_center,#6C5CE7_0%,#00D2FF_50%,transparent_75%)] animate-pulse duration-1000" />
       <div className="absolute top-0 inset-x-0 h-48 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
 
-      {/* Top Bar: Return to Editor Link */}
+      {/* Top Bar: Return to Editor & Direct Guest Entry */}
       <header className="w-full max-w-md flex items-center justify-between z-10">
         <button
-          onClick={() => setCurrentPage('editor')}
-          className="inline-flex items-center gap-1.5 text-xs text-editor-dim hover:text-white transition-colors py-1 px-2 rounded-md hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00D2FF]"
+          onClick={handleGuestAccess}
+          className="inline-flex items-center gap-1.5 text-xs text-editor-dim hover:text-white transition-colors py-1 px-2.5 rounded-md hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00D2FF] cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Editor</span>
+          <span>Enter Video Editor</span>
         </button>
 
-        <span className="text-[11px] font-mono text-editor-dim bg-[#161618] border border-white/[0.06] px-2 py-0.5 rounded-full">
-          v1.0 Pro
-        </span>
+        <button
+          onClick={handleGuestAccess}
+          className="inline-flex items-center gap-1.5 text-xs text-[#00D2FF] hover:text-cyan-300 transition-colors py-1 px-2.5 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] cursor-pointer"
+        >
+          <Sparkles className="w-3 h-3 text-[#00D2FF]" />
+          <span>Continue as Guest</span>
+          <ArrowRight className="w-3 h-3" />
+        </button>
       </header>
 
       {/* Main Content Area */}
@@ -255,7 +280,7 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Secondary Card below main card: Toggle Mode */}
-        <div className="w-full bg-[#161618] border border-white/[0.08] rounded-[10px] p-3.5 text-center text-xs text-[#9ca3af] shadow-lg shadow-black/40">
+        <div className="w-full bg-[#161618] border border-white/[0.08] rounded-[10px] p-3.5 text-center text-xs text-[#9ca3af] shadow-lg shadow-black/40 flex flex-col gap-2">
           {mode === 'login' ? (
             <span>
               New to Apex Editor?{' '}
@@ -265,7 +290,7 @@ export const LoginPage: React.FC = () => {
                   setMode('signup');
                   setDemoNotice(null);
                 }}
-                className="text-[#00D2FF] font-semibold hover:underline focus-visible:outline-none focus-visible:underline"
+                className="text-[#00D2FF] font-semibold hover:underline focus-visible:outline-none focus-visible:underline cursor-pointer"
               >
                 Create account
               </button>
@@ -279,12 +304,23 @@ export const LoginPage: React.FC = () => {
                   setMode('login');
                   setDemoNotice(null);
                 }}
-                className="text-[#00D2FF] font-semibold hover:underline focus-visible:outline-none focus-visible:underline"
+                className="text-[#00D2FF] font-semibold hover:underline focus-visible:outline-none focus-visible:underline cursor-pointer"
               >
                 Log in
               </button>
             </span>
           )}
+
+          <div className="border-t border-white/[0.06] pt-2 flex items-center justify-center gap-1.5 text-[11px] text-editor-dim">
+            <span>Want to edit immediately?</span>
+            <button
+              type="button"
+              onClick={handleGuestAccess}
+              className="text-white hover:text-[#00D2FF] font-medium underline underline-offset-2 cursor-pointer"
+            >
+              Enter as Guest →
+            </button>
+          </div>
         </div>
       </main>
 

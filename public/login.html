@@ -792,24 +792,40 @@
           btnText.textContent = isSignUp ? 'Create account' : 'Log in';
           submitBtn.disabled = false;
 
+          const userName = identifier.value.trim().split('@')[0] || 'Apex Creator';
+          try {
+            localStorage.setItem('apex_user', JSON.stringify({
+              name: userName,
+              email: identifier.value.trim(),
+              isLoggedIn: true
+            }));
+          } catch(e) {}
+
           demoAlertText.textContent = isSignUp
-            ? 'Demo Mode: Account created successfully! Welcome to Apex Editor.'
+            ? 'Demo Mode: Account created successfully! Launching Apex Editor...'
             : 'Demo Mode: Authentication simulated successfully! Welcome back to Apex Editor.';
           demoAlert.classList.add('show');
 
           setTimeout(function () {
-            window.location.href = '/';
-          }, 1400);
-        }, 1100);
+            window.location.href = '/#editor';
+          }, 800);
+        }, 900);
       });
 
       // Google Sign In (simulated)
       googleBtn.addEventListener('click', function () {
-        demoAlertText.textContent = 'Demo Mode: Google authentication simulated successfully!';
+        try {
+          localStorage.setItem('apex_user', JSON.stringify({
+            name: 'Google Creator',
+            email: 'creator@gmail.com',
+            isLoggedIn: true
+          }));
+        } catch(e) {}
+        demoAlertText.textContent = 'Demo Mode: Google authentication simulated successfully! Launching...';
         demoAlert.classList.add('show');
         setTimeout(function () {
-          window.location.href = '/';
-        }, 1200);
+          window.location.href = '/#editor';
+        }, 700);
       });
 
       // Forgot password

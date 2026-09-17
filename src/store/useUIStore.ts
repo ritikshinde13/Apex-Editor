@@ -21,6 +21,12 @@ export interface ConfirmDialogOptions {
   onCancel?: () => void;
 }
 
+export interface UserProfile {
+  name: string;
+  email: string;
+  isLoggedIn: boolean;
+}
+
 interface UIState {
   activeTab: LeftDockTab;
   activeTool: ActiveTool;
@@ -30,6 +36,7 @@ interface UIState {
   isComparingBeforeAfter: boolean;
   isChatBotOpen: boolean;
   currentPage: 'editor' | 'login';
+  currentUser: UserProfile | null;
   toasts: ToastNotification[];
   confirmDialog: ConfirmDialogOptions | null;
 
@@ -44,11 +51,31 @@ interface UIState {
   setChatBotOpen: (open: boolean) => void;
   toggleChatBot: () => void;
   setCurrentPage: (page: 'editor' | 'login') => void;
+  setCurrentUser: (user: UserProfile | null) => void;
   showToast: (toast: Omit<ToastNotification, 'id'>) => void;
   removeToast: (id: string) => void;
   openConfirmDialog: (options: ConfirmDialogOptions) => void;
   closeConfirmDialog: () => void;
 }
+
+const getInitialUser = (): UserProfile | null => {
+  try {
+    const saved = localStorage.getItem('apex_user');
+    if (saved) return JSON.parse(saved);
+  } catch {
+    // Ignore error
+  }
+  return null;
+};
+
+const getInitialPage = (): 'editor' | 'login' => {
+  if (typeof window !== 'undefined') {
+    if (window.location.hash === '#login') return 'login';
+    if (window.location.hash === '#editor') return 'editor';
+  }
+  const user = getInitialUser();
+  return user ? 'editor' : 'login';
+};
 
 export const useUIStore = create<UIState>((set) => ({
   activeTab: 'media',
@@ -58,7 +85,8 @@ export const useUIStore = create<UIState>((set) => ({
   isShortcutsModalOpen: false,
   isComparingBeforeAfter: false,
   isChatBotOpen: false,
-  currentPage: 'editor',
+  currentPage: getInitialPage(),
+  currentUser: getInitialUser(),
   toasts: [],
   confirmDialog: null,
 
@@ -72,6 +100,22 @@ export const useUIStore = create<UIState>((set) => ({
   setChatBotOpen: (open: boolean) => set({ isChatBotOpen: open }),
   toggleChatBot: () => set((state) => ({ isChatBotOpen: !state.isChatBotOpen })),
   setCurrentPage: (page: 'editor' | 'login') => set({ currentPage: page }),
+  setCurrentUser: (user: UserProfile | null) => {
+    if (user) {
+      try {
+        localStorage.setItem('apex_user', JSON.stringify(user));
+      } catch {
+        // ignore
+      }
+    } else {
+      try {
+        localStorage.removeItem('apex_user');
+      } catch {
+        // ignore
+      }
+    }
+    set({ currentUser: user });
+  },
 
   showToast: (toast) => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
