@@ -29,6 +29,7 @@ interface UIState {
   isShortcutsModalOpen: boolean;
   isComparingBeforeAfter: boolean;
   isChatBotOpen: boolean;
+  currentPage: 'editor' | 'login';
   toasts: ToastNotification[];
   confirmDialog: ConfirmDialogOptions | null;
 
@@ -42,6 +43,7 @@ interface UIState {
   toggleComparingBeforeAfter: () => void;
   setChatBotOpen: (open: boolean) => void;
   toggleChatBot: () => void;
+  setCurrentPage: (page: 'editor' | 'login') => void;
   showToast: (toast: Omit<ToastNotification, 'id'>) => void;
   removeToast: (id: string) => void;
   openConfirmDialog: (options: ConfirmDialogOptions) => void;
@@ -56,6 +58,7 @@ export const useUIStore = create<UIState>((set) => ({
   isShortcutsModalOpen: false,
   isComparingBeforeAfter: false,
   isChatBotOpen: false,
+  currentPage: 'editor',
   toasts: [],
   confirmDialog: null,
 
@@ -68,6 +71,7 @@ export const useUIStore = create<UIState>((set) => ({
   toggleComparingBeforeAfter: () => set((state) => ({ isComparingBeforeAfter: !state.isComparingBeforeAfter })),
   setChatBotOpen: (open: boolean) => set({ isChatBotOpen: open }),
   toggleChatBot: () => set((state) => ({ isChatBotOpen: !state.isChatBotOpen })),
+  setCurrentPage: (page: 'editor' | 'login') => set({ currentPage: page }),
 
   showToast: (toast) => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;

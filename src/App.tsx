@@ -11,6 +11,7 @@ import { ConfirmDialog } from './components/common/ConfirmDialog';
 import { ToastContainer } from './components/common/ToastContainer';
 import { ChatBotModal } from './components/chatbot/ChatBotModal';
 import { ChatBotTrigger } from './components/chatbot/ChatBotTrigger';
+import { LoginPage } from './components/auth/LoginPage';
 import { useMediaStore } from './store/useMediaStore';
 import { useProjectStore } from './store/useProjectStore';
 import { useEditorStore } from './store/useEditorStore';
@@ -23,9 +24,24 @@ export const App: React.FC = () => {
   const { project, markDirty } = useProjectStore();
   const { tracks, clips } = useEditorStore();
   const { items } = useMediaStore();
-  const { showToast } = useUIStore();
+  const { showToast, currentPage, setCurrentPage } = useUIStore();
 
   const [isWindowDragOver, setIsWindowDragOver] = useState(false);
+
+  // Sync route with URL hash #login or #editor
+  useEffect(() => {
+    const handleHashSync = () => {
+      if (window.location.hash === '#login') {
+        setCurrentPage('login');
+      } else if (window.location.hash === '#editor') {
+        setCurrentPage('editor');
+      }
+    };
+
+    handleHashSync();
+    window.addEventListener('hashchange', handleHashSync);
+    return () => window.removeEventListener('hashchange', handleHashSync);
+  }, [setCurrentPage]);
 
   // Global window drag-and-drop file import
   useEffect(() => {
@@ -90,6 +106,15 @@ export const App: React.FC = () => {
 
     return () => clearInterval(interval);
   }, [project, tracks, clips, items, markDirty]);
+
+  if (currentPage === 'login') {
+    return (
+      <div className="h-screen w-screen bg-[#0d0d0f] overflow-y-auto">
+        <LoginPage />
+        <ToastContainer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen w-screen bg-editor-bg text-editor-text overflow-hidden font-sans relative select-none">

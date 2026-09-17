@@ -19,6 +19,7 @@ import {
   PlusCircle,
   ChevronDown,
   Sparkles,
+  User,
 } from 'lucide-react';
 
 export const HeaderNav: React.FC = () => {
@@ -46,6 +47,7 @@ export const HeaderNav: React.FC = () => {
     toggleChatBot,
     showToast,
     openConfirmDialog,
+    setCurrentPage,
   } = useUIStore();
 
   const [isEditingName, setIsEditingName] = useState(false);
@@ -393,10 +395,23 @@ export const HeaderNav: React.FC = () => {
           <span className="text-xs font-semibold">AI Co-Pilot</span>
         </button>
 
+        {/* Sign In / Account Button */}
+        <button
+          onClick={() => {
+            window.location.hash = '#login';
+            setCurrentPage('login');
+          }}
+          title="Sign In / Account"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-editor-surface text-editor-subtext hover:text-white border border-editor-border hover:border-white/20 transition-all text-xs font-medium cursor-pointer"
+        >
+          <User className="w-3.5 h-3.5 text-editor-subtext" />
+          <span className="hidden sm:inline">Sign In</span>
+        </button>
+
         {/* Export CTA Button */}
         <button
           onClick={() => setExportModalOpen(true)}
-          className="ml-2 px-4 py-1.5 rounded-xl bg-gradient-to-r from-accent-cyan to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-black font-semibold text-xs flex items-center gap-1.5 shadow-glow-cyan hover:shadow-cyan-400/40 transition-all transform active:scale-95"
+          className="ml-1 px-4 py-1.5 rounded-xl bg-gradient-to-r from-accent-cyan to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-black font-semibold text-xs flex items-center gap-1.5 shadow-glow-cyan hover:shadow-cyan-400/40 transition-all transform active:scale-95"
         >
           <Download className="w-3.5 h-3.5 text-black stroke-[2.5]" />
           <span>Export Video</span>
