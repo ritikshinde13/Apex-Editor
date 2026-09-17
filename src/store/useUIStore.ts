@@ -8,6 +8,7 @@ export interface ToastNotification {
   type: 'success' | 'error' | 'info' | 'warning';
   title: string;
   message?: string;
+  duration?: number;
 }
 
 export interface ConfirmDialogOptions {
@@ -72,11 +73,16 @@ export const useUIStore = create<UIState>((set) => ({
     const id = `toast-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
     const newToast: ToastNotification = { ...toast, id };
 
-    set((state) => ({ toasts: [...state.toasts, newToast] }));
+    set((state) => {
+      // Keep at most 2 existing toasts so max 3 are visible at once
+      const recent = state.toasts.slice(-2);
+      return { toasts: [...recent, newToast] };
+    });
 
+    const autoDuration = toast.duration || 2800;
     setTimeout(() => {
       set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
-    }, 4000);
+    }, autoDuration + 300);
   },
 
   removeToast: (id: string) => {
