@@ -5,7 +5,8 @@ import { AudioLibrary } from './AudioLibrary';
 import { TextTemplates } from './TextTemplates';
 import { EffectsLibrary } from './EffectsLibrary';
 import { TransitionsLibrary } from './TransitionsLibrary';
-import { Film, Music, Type, Sparkles, Shuffle } from 'lucide-react';
+import { FilterPanel } from './Filters/FilterPanel';
+import { Film, Music, Type, Sparkles, Shuffle, SlidersHorizontal } from 'lucide-react';
 
 export const LeftDock: React.FC = () => {
   const { activeTab, setActiveTab } = useUIStore();
@@ -14,6 +15,7 @@ export const LeftDock: React.FC = () => {
     { id: 'media', label: 'Media', icon: <Film className="w-5 h-5" /> },
     { id: 'audio', label: 'Audio', icon: <Music className="w-5 h-5" /> },
     { id: 'text', label: 'Text', icon: <Type className="w-5 h-5" /> },
+    { id: 'filters', label: 'Filters', icon: <SlidersHorizontal className="w-5 h-5" /> },
     { id: 'fx', label: 'FX', icon: <Sparkles className="w-5 h-5" /> },
     { id: 'transitions', label: 'Transitions', icon: <Shuffle className="w-5 h-5" /> },
   ];
@@ -47,6 +49,7 @@ export const LeftDock: React.FC = () => {
         {activeTab === 'media' && <MediaLibrary />}
         {activeTab === 'audio' && <AudioLibrary />}
         {activeTab === 'text' && <TextTemplates />}
+        {activeTab === 'filters' && <FilterPanel />}
         {activeTab === 'fx' && <EffectsLibrary />}
         {activeTab === 'transitions' && <TransitionsLibrary />}
       </div>

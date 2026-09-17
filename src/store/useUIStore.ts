@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type LeftDockTab = 'media' | 'audio' | 'text' | 'fx' | 'transitions';
+export type LeftDockTab = 'media' | 'audio' | 'text' | 'filters' | 'fx' | 'transitions';
 export type ActiveTool = 'select' | 'razor';
 
 export interface ToastNotification {
@@ -26,6 +26,7 @@ interface UIState {
   isExportModalOpen: boolean;
   isSettingsModalOpen: boolean;
   isShortcutsModalOpen: boolean;
+  isComparingBeforeAfter: boolean;
   toasts: ToastNotification[];
   confirmDialog: ConfirmDialogOptions | null;
 
@@ -35,6 +36,8 @@ interface UIState {
   setExportModalOpen: (open: boolean) => void;
   setSettingsModalOpen: (open: boolean) => void;
   setShortcutsModalOpen: (open: boolean) => void;
+  setIsComparingBeforeAfter: (comparing: boolean) => void;
+  toggleComparingBeforeAfter: () => void;
   showToast: (toast: Omit<ToastNotification, 'id'>) => void;
   removeToast: (id: string) => void;
   openConfirmDialog: (options: ConfirmDialogOptions) => void;
@@ -47,6 +50,7 @@ export const useUIStore = create<UIState>((set) => ({
   isExportModalOpen: false,
   isSettingsModalOpen: false,
   isShortcutsModalOpen: false,
+  isComparingBeforeAfter: false,
   toasts: [],
   confirmDialog: null,
 
@@ -55,6 +59,8 @@ export const useUIStore = create<UIState>((set) => ({
   setExportModalOpen: (open: boolean) => set({ isExportModalOpen: open }),
   setSettingsModalOpen: (open: boolean) => set({ isSettingsModalOpen: open }),
   setShortcutsModalOpen: (open: boolean) => set({ isShortcutsModalOpen: open }),
+  setIsComparingBeforeAfter: (comparing: boolean) => set({ isComparingBeforeAfter: comparing }),
+  toggleComparingBeforeAfter: () => set((state) => ({ isComparingBeforeAfter: !state.isComparingBeforeAfter })),
 
   showToast: (toast) => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;

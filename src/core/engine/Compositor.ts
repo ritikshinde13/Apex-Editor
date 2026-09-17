@@ -1,5 +1,6 @@
 import { TimelineClip, TimelineTrack } from '@/types/timeline';
 import { MediaItem } from '@/types/media';
+import { computeFilterCSS } from '../filters/filterDefinitions';
 
 export class Compositor {
   private canvas: HTMLCanvasElement;
@@ -84,7 +85,8 @@ export class Compositor {
     tracks: TimelineTrack[],
     clips: TimelineClip[],
     mediaItems: MediaItem[],
-    isPlaying: boolean
+    isPlaying: boolean,
+    bypassFilters: boolean = false
   ) {
     const { width, height } = this.offscreenCanvas;
     const ctx = this.offscreenCtx;
@@ -108,7 +110,7 @@ export class Compositor {
       });
 
       for (const clip of activeClips) {
-        this.renderClip(ctx, clip, time, mediaItems, isPlaying, width, height);
+        this.renderClip(ctx, clip, time, mediaItems, isPlaying, width, height, bypassFilters);
       }
     }
 
@@ -128,7 +130,8 @@ export class Compositor {
     mediaItems: MediaItem[],
     isPlaying: boolean,
     width: number,
-    height: number
+    height: number,
+    bypassFilters: boolean = false
   ) {
     const media = mediaItems.find((m) => m.id === clip.mediaId);
     const mediaUrl = media?.blobUrl;
@@ -163,22 +166,16 @@ export class Compositor {
       }
     }
 
-    // Compose CSS filters string
-    const filters: string[] = [];
-    const adj = clip.adjustments;
-    if (adj.brightness !== 0) filters.push(`brightness(${100 + adj.brightness}%)`);
-    if (adj.contrast !== 0) filters.push(`contrast(${100 + adj.contrast}%)`);
-    if (adj.saturation !== 0) filters.push(`saturate(${100 + adj.saturation}%)`);
-    if (adj.blur > 0) filters.push(`blur(${adj.blur}px)`);
+    // Dynamic Filter & Intensity Computation
+    const effectiveFilterId = bypassFilters ? 'original' : (clip.adjustments.filterPreset || 'original');
+    const effectiveIntensity = bypassFilters ? 0 : (clip.adjustments.filterIntensity ?? 100);
+    const { cssFilterString, colorOverlay, blendMode, vignette: filterVignette } = computeFilterCSS(
+      effectiveFilterId,
+      effectiveIntensity,
+      clip.adjustments
+    );
 
-    // Presets
-    if (adj.filterPreset === 'bw') filters.push('grayscale(100%)');
-    if (adj.filterPreset === 'vintage') filters.push('sepia(60%) contrast(110%)');
-    if (adj.filterPreset === 'cinematic') filters.push('contrast(120%) saturate(115%)');
-    if (adj.filterPreset === 'warm') filters.push('sepia(25%) saturate(120%)');
-    if (adj.filterPreset === 'cool') filters.push('hue-rotate(180deg) saturate(90%)');
-
-    ctx.filter = filters.length > 0 ? filters.join(' ') : 'none';
+    ctx.filter = cssFilterString;
 
     // Position center & apply transform matrix
     const centerX = width / 2 + clip.transform.x;
@@ -258,11 +255,22 @@ export class Compositor {
       this.renderTextClip(ctx, clip.text);
     }
 
+    // Apply color overlay tint if filter defines one
+    if (colorOverlay) {
+      ctx.save();
+      ctx.filter = 'none';
+      ctx.globalCompositeOperation = blendMode || 'soft-light';
+      ctx.fillStyle = colorOverlay;
+      ctx.fillRect(-width / 2, -height / 2, width, height);
+      ctx.restore();
+    }
+
     ctx.restore();
 
-    // Vignette overlay if applicable
-    if (clip.adjustments.vignette > 0) {
-      this.renderVignette(ctx, width, height, clip.adjustments.vignette);
+    // Vignette overlay if applicable (either manual adjustment or from filter)
+    const effectiveVignette = Math.max(clip.adjustments.vignette || 0, filterVignette || 0);
+    if (effectiveVignette > 0) {
+      this.renderVignette(ctx, width, height, effectiveVignette);
     }
   }
 

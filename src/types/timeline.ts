@@ -21,7 +21,8 @@ export interface VideoAdjustments {
   temperature: number; // -100 to 100 (default 0)
   blur: number;        // 0 to 50px
   vignette: number;    // 0 to 100%
-  filterPreset: 'none' | 'cinematic' | 'bw' | 'warm' | 'cool' | 'vintage';
+  filterPreset: string; // 'none' or any filter ID from filterDefinitions
+  filterIntensity?: number; // 0 to 100 (default 100)
 }
 
 export interface AudioAdjustments {

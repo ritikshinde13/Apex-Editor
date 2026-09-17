@@ -7,6 +7,7 @@ import { Compositor } from '@/core/engine/Compositor';
 import { AudioMixer } from '@/core/engine/AudioMixer';
 import { formatTimecode } from '@/utils/timecode';
 import { ASPECT_RATIOS } from '@/types/project';
+import { useUIStore } from '@/store/useUIStore';
 import {
   Play,
   Pause,
@@ -73,6 +74,10 @@ export const PreviewPlayer: React.FC = () => {
     }
   }, [project.width, project.height]);
 
+  const isComparingBeforeAfter = useUIStore((state) => state.isComparingBeforeAfter);
+  const isComparingBeforeAfterRef = useRef(isComparingBeforeAfter);
+  isComparingBeforeAfterRef.current = isComparingBeforeAfter;
+
   const currentTimeRef = useRef(currentTime);
   currentTimeRef.current = currentTime;
 
@@ -117,7 +122,8 @@ export const PreviewPlayer: React.FC = () => {
           tracksRef.current,
           clipsRef.current,
           itemsRef.current,
-          isPlayingRef.current
+          isPlayingRef.current,
+          isComparingBeforeAfterRef.current
         );
       }
 
@@ -200,6 +206,13 @@ export const PreviewPlayer: React.FC = () => {
             height={project.height}
             className="w-full h-full object-contain pointer-events-none"
           />
+
+          {isComparingBeforeAfter && (
+            <div className="absolute top-3 left-3 bg-amber-500/90 text-black text-xs font-bold px-2.5 py-1 rounded-md shadow-lg backdrop-blur-md pointer-events-none tracking-wider uppercase flex items-center gap-1.5 animate-pulse z-10 border border-amber-300/40">
+              <span className="w-2 h-2 rounded-full bg-black/60 inline-block" />
+              <span>Before (Original)</span>
+            </div>
+          )}
         </div>
       </div>
 

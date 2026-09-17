@@ -35,6 +35,10 @@ interface EditorState {
   // Inspector property updates
   updateClipTransform: (clipId: string, transform: Partial<TransformProperties>) => void;
   updateClipAdjustments: (clipId: string, adjustments: Partial<VideoAdjustments>) => void;
+  applyFilterToClip: (clipId: string, filterId: string, intensity?: number) => void;
+  setFilterIntensity: (clipId: string, intensity: number) => void;
+  resetClipFilter: (clipId: string) => void;
+  applyFilterToAllClips: (filterId: string, intensity?: number) => void;
   updateClipAudio: (clipId: string, audio: Partial<AudioAdjustments>) => void;
   updateClipText: (clipId: string, text: Partial<TextProperties>) => void;
   updateClipSpeed: (clipId: string, speed: number) => void;
@@ -243,6 +247,85 @@ export const useEditorStore = create<EditorState>((set, get) => ({
           : clip
       ),
     }));
+  },
+
+  applyFilterToClip: (clipId: string, filterId: string, intensity: number = 100) => {
+    const { tracks, clips } = get();
+    historyManager.recordState(tracks, clips, `Apply filter ${filterId}`);
+    set({
+      clips: clips.map((clip) =>
+        clip.id === clipId
+          ? {
+              ...clip,
+              adjustments: {
+                ...clip.adjustments,
+                filterPreset: filterId,
+                filterIntensity: Math.max(0, Math.min(100, intensity)),
+              },
+            }
+          : clip
+      ),
+      canUndo: historyManager.canUndo(),
+      canRedo: historyManager.canRedo(),
+    });
+  },
+
+  setFilterIntensity: (clipId: string, intensity: number) => {
+    set((state) => ({
+      clips: state.clips.map((clip) =>
+        clip.id === clipId
+          ? {
+              ...clip,
+              adjustments: {
+                ...clip.adjustments,
+                filterIntensity: Math.max(0, Math.min(100, intensity)),
+              },
+            }
+          : clip
+      ),
+    }));
+  },
+
+  resetClipFilter: (clipId: string) => {
+    const { tracks, clips } = get();
+    historyManager.recordState(tracks, clips, 'Reset filter');
+    set({
+      clips: clips.map((clip) =>
+        clip.id === clipId
+          ? {
+              ...clip,
+              adjustments: {
+                ...clip.adjustments,
+                filterPreset: 'original',
+                filterIntensity: 100,
+              },
+            }
+          : clip
+      ),
+      canUndo: historyManager.canUndo(),
+      canRedo: historyManager.canRedo(),
+    });
+  },
+
+  applyFilterToAllClips: (filterId: string, intensity: number = 100) => {
+    const { tracks, clips } = get();
+    historyManager.recordState(tracks, clips, `Apply filter ${filterId} to all`);
+    set({
+      clips: clips.map((clip) =>
+        clip.type === 'video' || clip.type === 'image'
+          ? {
+              ...clip,
+              adjustments: {
+                ...clip.adjustments,
+                filterPreset: filterId,
+                filterIntensity: Math.max(0, Math.min(100, intensity)),
+              },
+            }
+          : clip
+      ),
+      canUndo: historyManager.canUndo(),
+      canRedo: historyManager.canRedo(),
+    });
   },
 
   updateClipAudio: (clipId: string, audio: Partial<AudioAdjustments>) => {

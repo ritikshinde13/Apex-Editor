@@ -1,5 +1,7 @@
 import React from 'react';
 import { useEditorStore } from '@/store/useEditorStore';
+import { useUIStore } from '@/store/useUIStore';
+import { getFilterById } from '@/core/filters/filterDefinitions';
 import {
   Sliders,
   Move,
@@ -8,6 +10,7 @@ import {
   Volume2,
   Type,
   RotateCcw,
+  ExternalLink,
 } from 'lucide-react';
 
 export const Inspector: React.FC = () => {
@@ -19,7 +22,11 @@ export const Inspector: React.FC = () => {
     updateClipAudio,
     updateClipText,
     updateClipSpeed,
+    setFilterIntensity,
+    resetClipFilter,
   } = useEditorStore();
+
+  const setActiveTab = useUIStore((state) => state.setActiveTab);
 
   const selectedClip = clips.find((c) => c.id === selectedClipId);
 
@@ -40,6 +47,9 @@ export const Inspector: React.FC = () => {
   }
 
   const { transform, adjustments, audio, text, speed } = selectedClip;
+  const activeFilterPreset = adjustments.filterPreset || 'original';
+  const activeFilterDef = getFilterById(activeFilterPreset);
+  const hasFilter = activeFilterPreset !== 'original' && activeFilterPreset !== 'none';
 
   return (
     <aside className="w-80 h-full bg-editor-panel border-l border-editor-border flex flex-col select-none shrink-0 z-10">
@@ -213,13 +223,72 @@ export const Inspector: React.FC = () => {
                     saturation: 0,
                     blur: 0,
                     vignette: 0,
+                    filterPreset: 'original',
+                    filterIntensity: 100,
                   })
                 }
-                title="Reset Colors"
+                title="Reset All Adjustments & Filters"
                 className="p-1 hover:text-editor-text text-editor-dim transition-colors"
               >
                 <RotateCcw className="w-3 h-3" />
               </button>
+            </div>
+
+            {/* Active Filter Preset & Intensity */}
+            <div className="p-2.5 rounded-lg bg-editor-panel/80 border border-editor-border/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div
+                    className="w-5 h-5 rounded shadow-inner shrink-0"
+                    style={{ background: activeFilterDef.thumbnailGradient }}
+                  />
+                  <div className="min-w-0">
+                    <span className="text-[11px] font-semibold text-editor-text block truncate leading-none">
+                      {activeFilterDef.name}
+                    </span>
+                    <span className="text-[9px] text-editor-dim">Filter Preset</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  {hasFilter && (
+                    <button
+                      onClick={() => resetClipFilter(selectedClip.id)}
+                      title="Reset Filter to Original"
+                      className="text-[10px] text-editor-dim hover:text-rose-400 p-1 transition-colors"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setActiveTab('filters')}
+                    title="Open Filters Library"
+                    className="flex items-center gap-1 text-[10px] font-medium text-accent-cyan hover:text-accent-cyan/80 px-2 py-0.5 rounded bg-accent-cyan/10 hover:bg-accent-cyan/20 border border-accent-cyan/20 transition-colors"
+                  >
+                    <span>Browse</span>
+                    <ExternalLink className="w-2.5 h-2.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Intensity Slider if filter is applied */}
+              {hasFilter && (
+                <div className="space-y-1 pt-1.5 border-t border-editor-border/40">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-editor-subtext">Filter Intensity</span>
+                    <span className="text-editor-text font-mono text-accent-cyan">
+                      {adjustments.filterIntensity ?? 100}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={adjustments.filterIntensity ?? 100}
+                    onChange={(e) => setFilterIntensity(selectedClip.id, parseInt(e.target.value))}
+                    className="w-full h-1 bg-editor-border rounded appearance-none cursor-pointer accent-accent-cyan"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Brightness */}

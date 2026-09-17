@@ -7,7 +7,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6?style=for-the-badge&logo=typescript)
 ![Vite](https://img.shields.io/badge/Bundler-Vite%208-646cff?style=for-the-badge&logo=vite)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=for-the-badge&logo=tailwindcss)
-![Vitest](https://img.shields.io/badge/Tests-7%2F7%20Passing-10b981?style=for-the-badge&logo=vitest)
+![Vitest](https://img.shields.io/badge/Tests-20%2F20%20Passing-10b981?style=for-the-badge&logo=vitest)
 
 **A modern, high-performance Non-Linear Video Editor (NLE) engineered for seamless browser-based editing with desktop-grade responsiveness.**
 
@@ -25,21 +25,21 @@ The following diagram illustrates how **Apex Editor** decouples state management
 flowchart TD
     subgraph UI_Layer ["🖥️ User Interface Layer (React 19 + Tailwind CSS)"]
         TopNav["Header Navigation\n(Project Title, Menu, Export CTA)"]
-        LeftDock["Left Dock\n(Media Pool, Audio, Typography, FX, Transitions)"]
-        Monitor["Preview Monitor Canvas\n(Transport Controls, Timecode, LED Peak Meter)"]
-        Inspector["Contextual Inspector\n(Transform, Adjustments, Speed, Audio)"]
+        LeftDock["Left Dock\n(Media Pool, Audio, Typography, Filters, FX, Transitions)"]
+        Monitor["Preview Monitor Canvas\n(Transport Controls, Timecode, LED Peak Meter, Before/After)"]
+        Inspector["Contextual Inspector\n(Transform, Filters, Adjustments, Speed, Audio)"]
         TimelineUI["Multitrack Timeline\n(Dynamic Time Ruler, Track Lanes, Playhead)"]
     end
 
     subgraph State_Engine ["⚡ State & History Engine (Zustand + Immer)"]
-        EditorStore["useEditorStore\n(Tracks, Clips, Snapping, Zoom)"]
+        EditorStore["useEditorStore\n(Tracks, Clips, Filters, Snapping, Zoom)"]
         MediaStore["useMediaStore\n(Asset Manifest, Metadata)"]
         PlaybackStore["usePlaybackStore\n(Playhead Clock, Master Volume)"]
         HistoryStack["History Ring Buffer\n(Non-destructive Undo / Redo)"]
     end
 
     subgraph Core_Engines ["⚙️ Core Execution Engines"]
-        Compositor["Double-Buffered Compositor\n(Offscreen Canvas + Persistent Frame Cache)"]
+        Compositor["Double-Buffered Compositor\n(CSS Filter Matrix + Color Overlays + Frame Cache)"]
         AudioMixer["Web Audio API Mixer\n(Track Routing, Gain Nodes, Fade Curves)"]
         StorageEngine["IndexedDB Storage Bridge\n(Zero-bloat JSON + Blob Persistence §6.4)"]
         ExportEngine["StreamExporter Pipeline\n(Frame Renderer + MediaRecorder)"]
@@ -77,11 +77,12 @@ Apex Editor organizes complex NLE capabilities into an intuitive 4-quadrant layo
 │ 📁 Media      │                                               │ 📐 Transform                    │
 │ 🎵 Audio      │               [ Video Canvas ]                │    • Position X / Y             │
 │ 🔤 Text       │              (Aspect: 16:9, 9:16)             │    • Scale (10% - 300%)         │
-│ ✨ FX         │                                               │    • Rotation (-180° to 180°)   │
-│ 🔀 Transition │  00:01:24:12 / 00:05:00:00                    │    • Opacity (0% - 100%)        │
+│ 🎚️ Filters    │                                               │    • Rotation (-180° to 180°)   │
+│ ✨ FX         │  [Before/After Badge Overlay]                 │    • Opacity (0% - 100%)        │
+│ 🔀 Transition │  00:01:24:12 / 00:05:00:00                    │ 🎚️ Active Filter & Intensity     │
 │               │  [⏮] [◀] [ ▶ ] [▶] [⏭]   🔊 ──●── [LED Meter] │ 🎨 Color Adjustments            │
-│  [Drop Media] │                                               │ ⚡ Playback Speed (0.25x - 8x)  │
-│  [Asset Cards]│                                               │ 🔊 Audio & Fade In/Out Curves   │
+│  [Filter Grid]│                                               │ ⚡ Playback Speed (0.25x - 8x)  │
+│  [Intensity %]│                                               │ 🔊 Audio & Fade In/Out Curves   │
 ├───────────────┴───────────────────────────────────────────────┴─────────────────────────────────┤
 │  TIMELINE TOOLBAR: [Pointer] [Razor] | [✂ Split] [🗑 Delete] | [🧲 Snap] [☰ Ripple] | [- Zoom +]│
 ├───────────────┬─────────────────────────────────────────────────────────────────────────────────┤
@@ -112,18 +113,26 @@ Apex Editor organizes complex NLE capabilities into an intuitive 4-quadrant layo
 - **Visual Filters & Cinematic Presets**: Live brightness, contrast, saturation, blur, vignette, and film look grades.
 - **Transitions**: Fade to Black, Cross Dissolve, Slide Left, and Slide Right.
 
-### 3. Web Audio API Mixing & Waveforms
+### 3. Professional Video Filters System (Canva & CapCut Quality)
+- **36 Curated Creative Filters**: Organized across 6 distinct categories: Basic, Cinematic, Vintage, Black & White, Mood, and Color.
+- **Dynamic Intensity Engine (0% - 100%)**: Smooth linear interpolation scaling from raw unedited video at 0% up to full stylized grade at 100%.
+- **Live Before/After Comparison**: Press-and-hold "Before" button to bypass filters in real time with animated live badge feedback.
+- **Color Overlays & Blend Modes**: Sophisticated Canvas 2D color grading using `soft-light` compositing and radial vignettes.
+- **Per-Clip & Batch Controls**: Quick "Apply to All Clips", "Reset Filter", and one-click favorite starring (⭐) saved in `localStorage`.
+- **100% Export Parity**: Shared `renderFrame` method guarantees all filters and intensities are natively baked into exported MP4 and WebM videos.
+
+### 4. Web Audio API Mixing & Waveforms
 - **Independent Gain Nodes**: Volume control and mute toggles per track and per clip.
 - **Fade Curves**: Dynamic fade-in and fade-out volume ramps.
 - **Downsampled Waveforms**: Normalized peak decoders visualize audio patterns directly on clip blocks.
 - **LED Peak Meter**: Live visual audio telemetry under the monitor.
 
-### 4. Smart Asset Ingestion & Storage Architecture (§6.4)
+### 5. Smart Asset Ingestion & Storage Architecture (§6.4)
 - **Zero-Bloat Project Files**: Raw media binaries (MP4, WebM, WAV, PNG) are stored in browser **IndexedDB** (`idb-keyval`) and referenced by UUID. Project files (`.apexproject`) remain lightweight JSON files.
 - **Drag-and-Drop**: Ingest media from anywhere on the operating system.
 - **Auto-Save Engine**: Periodically snapshots timeline progress every 30 seconds.
 
-### 5. Multi-Format Video Export
+### 6. Multi-Format Video Export
 - **Resolutions**: 720p HD, 1080p Full HD, 1440p 2K, 4K UHD.
 - **Frame Rates**: 24 FPS (Cinema), 30 FPS (Standard), 60 FPS (High Motion).
 - **Formats**: MP4 and WebM with configurable bitrate quality presets (Low, Medium, High).

@@ -76,12 +76,26 @@
   - `StreamExporter.ts`: Video export engine compositing frames onto an offscreen canvas with target resolution/FPS and recording via `MediaRecorder`.
   - `ExportModal.tsx`: Export dialog supporting 720p, 1080p, 1440p, 4K, 24/30/60 FPS, MP4/WebM formats, and real-time progress bar.
 
+### [Step 13] Professional Video Filters System (Canva & CapCut Quality)
+- **Status**: Completed
+- **What was built**:
+  - **36 Curated Professional Filters** across 6 categories: Basic, Cinematic, Vintage, Black & White, Mood, and Color (`filterDefinitions.ts`).
+  - **Dynamic Intensity Engine** (0% to 100%): Seamless linear interpolation back down to raw unedited footage at 0%.
+  - **Color Overlay & Vignette Composition**: Canvas 2D blend mode compositing (`soft-light`) and vignette gradation rendered on offscreen double-buffered canvas.
+  - **Zero Blinking & 60 FPS Performance**: Maintained double-buffer architecture and last-frame cache in `Compositor.ts`.
+  - **100% Export Parity**: Shared `renderFrame` method guarantees all filters and intensity adjustments are baked directly into exported MP4 and WebM videos without needing secondary shaders.
+  - **Instant Before/After Comparison**: Press-and-hold "Before" button (`onMouseDown`/`onMouseUp`/touch), Alt-click toggle, and animated live indicator badge on the preview monitor.
+  - **Filter Library Dock UI** (`FilterPanel.tsx`): Category bar (All, Favorites, Recent, Basic, Cinematic, Vintage, B&W, Mood, Color), real-time search, visual thumbnail gradient cards with active rings, and favorite star toggling with `localStorage` persistence.
+  - **Batch Operations**: "Apply to All Clips" and "Reset Filter" to safely clear adjustments without touching clip cuts or transforms.
+  - **Inspector Integration**: Quick filter preset badge, intensity slider, and jump-to-filter dock button.
+
 ---
 
 ## Verification & Testing
 - **Automated Tests**:
-  - Vitest test suite (`tests/unit/timeline.test.ts`): **7/7 tests passed** (timecode calculations, magnetic snapping, and undo/redo state restoration).
+  - Vitest test suites (`tests/unit/timeline.test.ts` & `tests/unit/filters.test.ts`): **20/20 tests passed**.
+  - Verified filter registry lookups, fallback behavior, 0%/50%/100% intensity scaling, color overlay blending, and clip store actions.
 - **TypeScript / Build**:
-  - `npm run build`: **0 errors**, production bundle compiled cleanly in `dist/`.
+  - `npm run build`: **0 errors**, production bundle compiled cleanly in `dist/` in 1.94s.
 - **Local Dev Server**:
   - Running at `http://localhost:5173/`, returning HTTP 200 OK.
