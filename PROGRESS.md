@@ -89,13 +89,26 @@
   - **Batch Operations**: "Apply to All Clips" and "Reset Filter" to safely clear adjustments without touching clip cuts or transforms.
   - **Inspector Integration**: Quick filter preset badge, intensity slider, and jump-to-filter dock button.
 
+### [Step 14] AI Chatbot Video Editing Co-Pilot (Natural Language & Voice)
+- **Status**: Completed
+- **What was built**:
+  - **Natural Language Intent Engine** (`intentParser.ts`): Parses 12+ real-world video editing commands including trim, cut, text overlays, music, filters, speed, transitions, noise reduction, subtitles, 9:16 crop, merge, and export.
+  - **Ambiguity Detection & Clarification**: Automatically prompts users with clarifying choices when given vague instructions (e.g. "make it shorter").
+  - **Backend API Endpoint** (`POST /api/chatbot/edit`): Implemented via Vite server middleware and `chatbotApi.ts`. Supports Claude API (`claude-3-5-sonnet`) with automatic fallback to high-accuracy local NLP engine.
+  - **Execution & Non-Destructive State Sync** (`commandExecutor.ts`): Executes parsed commands directly on timeline, audio mixer, and project stores with full `historyManager` undo/redo integration (`Ctrl+Z`).
+  - **Voice Commands (Speech-to-Text)**: Web Speech API integration with interactive mic button, live listening status, and animated wave indicators.
+  - **Apex AI Co-Pilot UI** (`ChatBotModal.tsx`, `ChatBotTrigger.tsx`): Sleek floating glassmorphic chat window, quick prompt chips, confirmation pills, and `Ctrl+J` global keyboard toggle.
+  - **Header Nav Integration**: Added "✨ AI Co-Pilot" launch button to the top toolbar.
+
 ---
 
 ## Verification & Testing
 - **Automated Tests**:
-  - Vitest test suites (`tests/unit/timeline.test.ts` & `tests/unit/filters.test.ts`): **20/20 tests passed**.
-  - Verified filter registry lookups, fallback behavior, 0%/50%/100% intensity scaling, color overlay blending, and clip store actions.
+  - Vitest test suites (`tests/unit/timeline.test.ts`, `tests/unit/filters.test.ts`, & `tests/unit/chatbot.test.ts`): **42/42 tests passed**.
+  - Verified timecode parsing, all 12 NLP intents, ambiguity detection, timeline mutations (trim, speed, text, filters, crop, subtitles), and undo state preservation.
+- **Backend API Verification**:
+  - Tested `POST http://localhost:5173/api/chatbot/edit` returning valid JSON commands and formatted confirmation messages.
 - **TypeScript / Build**:
-  - `npm run build`: **0 errors**, production bundle compiled cleanly in `dist/` in 1.94s.
+  - `npm run build`: **0 errors**, production bundle compiled cleanly in `dist/` in 1.65s.
 - **Local Dev Server**:
   - Running at `http://localhost:5173/`, returning HTTP 200 OK.

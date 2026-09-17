@@ -9,6 +9,8 @@ import { ProjectSettingsModal } from './components/modals/ProjectSettingsModal';
 import { ShortcutsModal } from './components/modals/ShortcutsModal';
 import { ConfirmDialog } from './components/common/ConfirmDialog';
 import { ToastContainer } from './components/common/ToastContainer';
+import { ChatBotModal } from './components/chatbot/ChatBotModal';
+import { ChatBotTrigger } from './components/chatbot/ChatBotTrigger';
 import { useMediaStore } from './store/useMediaStore';
 import { useProjectStore } from './store/useProjectStore';
 import { useEditorStore } from './store/useEditorStore';
@@ -110,6 +112,8 @@ export const App: React.FC = () => {
       <ShortcutsModal />
       <ConfirmDialog />
       <ToastContainer />
+      <ChatBotModal />
+      <ChatBotTrigger />
 
       {/* Full-Window Drag & Drop Indicator Overlay */}
       {isWindowDragOver && (

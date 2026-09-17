@@ -7,7 +7,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6?style=for-the-badge&logo=typescript)
 ![Vite](https://img.shields.io/badge/Bundler-Vite%208-646cff?style=for-the-badge&logo=vite)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=for-the-badge&logo=tailwindcss)
-![Vitest](https://img.shields.io/badge/Tests-20%2F20%20Passing-10b981?style=for-the-badge&logo=vitest)
+![Vitest](https://img.shields.io/badge/Tests-42%2F42%20Passing-10b981?style=for-the-badge&logo=vitest)
 
 **A modern, high-performance Non-Linear Video Editor (NLE) engineered for seamless browser-based editing with desktop-grade responsiveness.**
 
@@ -24,11 +24,12 @@ The following diagram illustrates how **Apex Editor** decouples state management
 ```mermaid
 flowchart TD
     subgraph UI_Layer ["🖥️ User Interface Layer (React 19 + Tailwind CSS)"]
-        TopNav["Header Navigation\n(Project Title, Menu, Export CTA)"]
+        TopNav["Header Navigation\n(Project Title, Menu, AI Button, Export CTA)"]
         LeftDock["Left Dock\n(Media Pool, Audio, Typography, Filters, FX, Transitions)"]
         Monitor["Preview Monitor Canvas\n(Transport Controls, Timecode, LED Peak Meter, Before/After)"]
         Inspector["Contextual Inspector\n(Transform, Filters, Adjustments, Speed, Audio)"]
         TimelineUI["Multitrack Timeline\n(Dynamic Time Ruler, Track Lanes, Playhead)"]
+        AICoPilot["Apex AI Co-Pilot\n(Speech-to-Text, Prompt NLP, Claude API / Local Engine)"]
     end
 
     subgraph State_Engine ["⚡ State & History Engine (Zustand + Immer)"]
@@ -46,6 +47,7 @@ flowchart TD
     end
 
     TopNav --> State_Engine
+    AICoPilot --> State_Engine
     LeftDock --> MediaStore
     TimelineUI <--> EditorStore
     Inspector <--> EditorStore
@@ -99,7 +101,27 @@ Apex Editor organizes complex NLE capabilities into an intuitive 4-quadrant layo
 
 ## 🚀 Key Features
 
-### 1. Non-Destructive Multitrack Timeline
+### 1. Apex AI Co-Pilot (Natural Language & Voice Video Editing)
+- **Natural Language Editing Engine**: Edit entire videos using plain English text or spoken voice commands instead of manual timeline scrubbing.
+- **Understands Complex Commands**:
+  - *"Trim the first 10 seconds"*
+  - *"Cut from 0:30 to 0:45"*
+  - *"Add text 'Sale Ends Soon' at the top from 0:00 to 0:05"*
+  - *"Add background music, lower volume during voiceover"*
+  - *"Apply a cinematic color filter"*
+  - *"Speed up this clip by 2x"*
+  - *"Add a fade transition between clip 1 and clip 2"*
+  - *"Remove background noise"*
+  - *"Add subtitles automatically"*
+  - *"Crop to 9:16 for Instagram Reels"*
+  - *"Merge these two clips"*
+  - *"Export as MP4 in 1080p"*
+- **Speech-to-Text Microphone**: Real-time voice command transcription via Web Speech API with live wave animation.
+- **Ambiguity Detection**: Intelligently clarifies vague prompts (e.g. *"make it shorter"*) with clickable suggestion buttons.
+- **Backend API (`POST /api/chatbot/edit`)**: Integrated with Anthropic Claude API (`claude-3-5-sonnet`) with zero-config local NLP fallback.
+- **Instant Synchronization & Undo**: Direct state mutations reflect in the 60 FPS preview player immediately, with full `Ctrl+Z` undo support.
+
+### 2. Non-Destructive Multitrack Timeline
 - **Infinite Track Scalability**: Video overlay tracks, dedicated audio layers, and typography tracks.
 - **Precision Trimming**: Drag left/right edge handles to non-destructively adjust in-points and durations.
 - **Razor Cut (`S` / `Ctrl+B`)**: Frame-accurate split at the playhead position without altering raw source media.

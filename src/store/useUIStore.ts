@@ -27,6 +27,7 @@ interface UIState {
   isSettingsModalOpen: boolean;
   isShortcutsModalOpen: boolean;
   isComparingBeforeAfter: boolean;
+  isChatBotOpen: boolean;
   toasts: ToastNotification[];
   confirmDialog: ConfirmDialogOptions | null;
 
@@ -38,6 +39,8 @@ interface UIState {
   setShortcutsModalOpen: (open: boolean) => void;
   setIsComparingBeforeAfter: (comparing: boolean) => void;
   toggleComparingBeforeAfter: () => void;
+  setChatBotOpen: (open: boolean) => void;
+  toggleChatBot: () => void;
   showToast: (toast: Omit<ToastNotification, 'id'>) => void;
   removeToast: (id: string) => void;
   openConfirmDialog: (options: ConfirmDialogOptions) => void;
@@ -51,6 +54,7 @@ export const useUIStore = create<UIState>((set) => ({
   isSettingsModalOpen: false,
   isShortcutsModalOpen: false,
   isComparingBeforeAfter: false,
+  isChatBotOpen: false,
   toasts: [],
   confirmDialog: null,
 
@@ -61,6 +65,8 @@ export const useUIStore = create<UIState>((set) => ({
   setShortcutsModalOpen: (open: boolean) => set({ isShortcutsModalOpen: open }),
   setIsComparingBeforeAfter: (comparing: boolean) => set({ isComparingBeforeAfter: comparing }),
   toggleComparingBeforeAfter: () => set((state) => ({ isComparingBeforeAfter: !state.isComparingBeforeAfter })),
+  setChatBotOpen: (open: boolean) => set({ isChatBotOpen: open }),
+  toggleChatBot: () => set((state) => ({ isChatBotOpen: !state.isChatBotOpen })),
 
   showToast: (toast) => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;

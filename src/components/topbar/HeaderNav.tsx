@@ -18,6 +18,7 @@ import {
   Save,
   PlusCircle,
   ChevronDown,
+  Sparkles,
 } from 'lucide-react';
 
 export const HeaderNav: React.FC = () => {
@@ -41,6 +42,8 @@ export const HeaderNav: React.FC = () => {
     setExportModalOpen,
     setSettingsModalOpen,
     setShortcutsModalOpen,
+    isChatBotOpen,
+    toggleChatBot,
     showToast,
     openConfirmDialog,
   } = useUIStore();
@@ -374,6 +377,20 @@ export const HeaderNav: React.FC = () => {
           className="p-1.5 rounded-lg bg-editor-surface text-editor-subtext hover:text-editor-text border border-editor-border transition-colors"
         >
           <Settings className="w-4 h-4" />
+        </button>
+
+        {/* AI Co-Pilot Assistant Button */}
+        <button
+          onClick={toggleChatBot}
+          title="AI Video Editing Assistant (Ctrl+J)"
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border transition-all ${
+            isChatBotOpen
+              ? 'bg-accent-cyan/20 text-accent-cyan border-accent-cyan/60 shadow-glow-cyan font-semibold'
+              : 'bg-editor-surface text-editor-subtext hover:text-accent-cyan border-editor-border hover:border-accent-cyan/40 shadow-sm'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5 text-accent-cyan" />
+          <span className="text-xs font-semibold">AI Co-Pilot</span>
         </button>
 
         {/* Export CTA Button */}
