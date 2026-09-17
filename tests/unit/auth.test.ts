@@ -62,16 +62,20 @@ describe('Auth & Login Page Integration', () => {
     expect(content).toContain('Email or username');
     expect(content).toContain('password');
 
-    // Buttons and actions
-    expect(content).toContain('Log in');
-    expect(content).toContain('Forgot password?');
-    expect(content).toContain('Continue with Google');
-    expect(content).toContain('Create account');
+    // Status indicator requirements
+    expect(content).toContain('Not logged in');
+    expect(content).toContain('status-badge');
+    expect(content).toContain('status-dot');
 
-    // Footer
-    expect(content).toContain('Terms');
-    expect(content).toContain('Privacy');
-    expect(content).toContain('Help');
+    // Button requirements with icon
+    expect(content).toContain('Log in');
+    expect(content).toContain('btn-primary');
+    expect(content).toContain('btnIcon');
+
+    // Strict constraint: No skip or guest options
+    expect(content).not.toContain('Continue as Guest');
+    expect(content).not.toContain('Enter as Guest');
+    expect(content).not.toContain('Skip for now');
 
     // Accessibility and focus state
     expect(content).toContain(':focus-visible');

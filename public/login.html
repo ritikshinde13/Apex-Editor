@@ -55,7 +55,7 @@
       height: 520px;
       border-radius: 50%;
       background: radial-gradient(circle at center, rgba(108, 92, 231, 0.28) 0%, rgba(0, 210, 255, 0.18) 45%, transparent 70%);
-      filter: blur(100px);
+      filter: blur(110px);
       pointer-events: none;
       z-index: 0;
       animation: pulseGlow 8s ease-in-out infinite alternate;
@@ -66,80 +66,161 @@
       100% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
     }
 
+    /* Header with Brand Tag and Global Status Indicator */
     header {
       width: 100%;
-      max-width: 400px;
+      max-width: 410px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       z-index: 10;
     }
 
-    .back-link {
+    .brand-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 12px;
-      color: var(--text-dim);
-      text-decoration: none;
-      padding: 6px 10px;
-      border-radius: 6px;
-      transition: all 0.15s ease;
-    }
-
-    .back-link:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .back-link:focus-visible {
-      outline: 2px solid var(--accent-cyan);
-    }
-
-    .version-badge {
       font-size: 11px;
       font-family: monospace;
       color: var(--text-dim);
       background: var(--card-bg);
       border: 1px solid var(--border-subtle);
-      padding: 3px 8px;
+      padding: 4px 10px;
       border-radius: 9999px;
+    }
+
+    .brand-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 6px var(--accent-cyan);
+    }
+
+    /* Status Indicator Badge / Pill */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .status-badge.logged-out {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-sub);
+    }
+
+    .status-badge.logged-in {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .status-dot.gray {
+      background: #71717a;
+    }
+
+    .status-dot.green {
+      background: #34d399;
+      box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+      animation: pulseGreen 2s infinite;
+    }
+
+    @keyframes pulseGreen {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    .logout-icon-btn {
+      background: transparent;
+      border: none;
+      color: inherit;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .logout-icon-btn:hover {
+      background: rgba(244, 63, 94, 0.2);
+      color: #fb7185;
+    }
+
+    .logout-icon-btn:focus-visible {
+      outline: 2px solid var(--accent-cyan);
     }
 
     main {
       width: 100%;
-      max-width: 400px;
+      max-width: 410px;
       margin: auto 0;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       z-index: 10;
-      padding-top: 16px;
-      padding-bottom: 16px;
+      padding-top: 12px;
+      padding-bottom: 12px;
     }
 
-    /* Main Login Card */
+    /* Centered Login Card */
     .card {
       background: var(--card-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 10px;
-      padding: 32px 28px;
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 255, 255, 0.02);
+      padding: 28px 24px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(8px);
+    }
+
+    /* Top row inside card */
+    .card-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .card-top-brand {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .card-top-brand span {
+      color: var(--accent-cyan);
     }
 
     /* Logo Area */
     .brand-header {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
     .logo-badge {
-      width: 46px;
-      height: 46px;
+      width: 44px;
+      height: 44px;
       border-radius: 12px;
       background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
       padding: 1px;
@@ -147,7 +228,7 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 6px 20px -4px rgba(0, 210, 255, 0.3);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .logo-badge-inner {
@@ -161,14 +242,14 @@
     }
 
     .logo-badge-inner svg {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       fill: var(--accent-cyan);
       margin-left: 2px;
     }
 
     .brand-title {
-      font-size: 22px;
+      font-size: 21px;
       font-weight: 700;
       letter-spacing: -0.5px;
       color: #fff;
@@ -183,19 +264,123 @@
     .brand-sub {
       font-size: 12px;
       color: var(--text-sub);
-      margin-top: 5px;
+      margin-top: 4px;
     }
 
-    /* Demo Notice Alert */
+    /* Active Session View inside card */
+    .session-view {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      text-align: center;
+    }
+
+    .session-view.active {
+      display: flex;
+    }
+
+    .session-card {
+      background: #111113;
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .session-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+      color: #0d0d0f;
+      font-weight: 700;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .session-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .session-email {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: monospace;
+    }
+
+    .session-tag {
+      font-size: 11px;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.1);
+      padding: 2px 10px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-enter-studio {
+      width: 100%;
+      height: 40px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-violet));
+      color: #0d0d0f;
+      font-size: 13px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 6px 18px -3px rgba(0, 210, 255, 0.3);
+    }
+
+    .btn-enter-studio:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-logout-full {
+      width: 100%;
+      height: 38px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-logout-full:hover {
+      background: rgba(244, 63, 94, 0.12);
+      border-color: rgba(244, 63, 94, 0.3);
+      color: #fb7185;
+    }
+
+    /* Demo Alert */
     .demo-alert {
       display: none;
       background: rgba(16, 185, 129, 0.1);
       border: 1px solid rgba(16, 185, 129, 0.3);
       color: #6ee7b7;
-      padding: 10px 14px;
+      padding: 10px 12px;
       border-radius: 8px;
       font-size: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       align-items: center;
       gap: 8px;
       line-height: 1.4;
@@ -203,17 +388,11 @@
 
     .demo-alert.show {
       display: flex;
-      animation: fadeIn 0.2s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-4px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     /* Form Fields */
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -232,11 +411,11 @@
     input[type="text"],
     input[type="password"] {
       width: 100%;
-      height: 42px;
+      height: 40px;
       background: var(--input-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
-      padding: 0 14px;
+      padding: 0 13px;
       font-size: 13px;
       color: #fff;
       font-family: inherit;
@@ -279,10 +458,10 @@
       outline: 2px solid var(--accent-cyan);
     }
 
-    /* Primary Login Button */
+    /* Primary Login Button with Login Icon */
     .btn-primary {
       width: 100%;
-      height: 42px;
+      height: 40px;
       border: none;
       border-radius: 8px;
       font-size: 13px;
@@ -294,7 +473,6 @@
       justify-content: center;
       gap: 8px;
       transition: all 0.2s ease;
-      position: relative;
     }
 
     .btn-primary.disabled {
@@ -325,11 +503,16 @@
       outline-offset: 2px;
     }
 
+    .btn-primary svg {
+      width: 15px;
+      height: 15px;
+    }
+
     /* Spinner */
     .spinner {
       display: none;
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
       border: 2px solid rgba(0, 0, 0, 0.2);
       border-top-color: #000;
       border-radius: 50%;
@@ -369,7 +552,7 @@
     /* Divider */
     .divider {
       position: relative;
-      margin: 22px 0;
+      margin: 20px 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -397,7 +580,7 @@
     /* Secondary Google Button */
     .btn-google {
       width: 100%;
-      height: 42px;
+      height: 40px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 8px;
@@ -432,14 +615,13 @@
       background: var(--card-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 10px;
-      padding: 14px 20px;
+      padding: 13px 18px;
       text-align: center;
       font-size: 12px;
       color: var(--text-sub);
       box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.5);
     }
 
-    .secondary-card a,
     .secondary-card button {
       color: var(--accent-cyan);
       font-weight: 600;
@@ -452,12 +634,10 @@
       transition: color 0.15s;
     }
 
-    .secondary-card a:hover,
     .secondary-card button:hover {
       text-decoration: underline;
     }
 
-    .secondary-card a:focus-visible,
     .secondary-card button:focus-visible {
       outline: 2px solid var(--accent-cyan);
       border-radius: 2px;
@@ -466,13 +646,13 @@
     /* Footer */
     footer {
       width: 100%;
-      max-width: 400px;
+      max-width: 410px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
       z-index: 10;
-      padding-top: 16px;
+      padding-top: 14px;
     }
 
     .footer-links {
@@ -576,21 +756,53 @@
   <!-- Ambient background glow -->
   <div class="ambient-glow"></div>
 
-  <!-- Header -->
+  <!-- Header with Brand Tag and Global Status Indicator Pill -->
   <header>
-    <a href="/" class="back-link">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="19" y1="12" x2="5" y2="12"></line>
-        <polyline points="12 19 5 12 12 5"></polyline>
-      </svg>
-      <span>Back to Editor</span>
-    </a>
-    <span class="version-badge">v1.0 Pro</span>
+    <div class="brand-pill">
+      <span class="brand-dot"></span>
+      <span>Apex Editor Pro</span>
+    </div>
+
+    <!-- Status indicator pill: Logged out (gray dot + Not logged in + login-arrow icon) vs Logged in (green dot + username + logout icon button) -->
+    <div class="status-badge logged-out" id="headerStatusBadge">
+      <span class="status-dot gray" id="headerStatusDot"></span>
+      <span id="headerStatusText">Not logged in</span>
+      <span id="headerStatusAction">
+        <!-- Simple login-arrow icon (arrow into door) -->
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+          <polyline points="10 17 15 12 10 7"></polyline>
+          <line x1="15" y1="12" x2="3" y2="12"></line>
+        </svg>
+      </span>
+    </div>
   </header>
 
   <!-- Main Card -->
   <main>
     <div class="card">
+      <!-- Card Top Bar with Status Badge in the top corner -->
+      <div class="card-top-bar">
+        <div class="card-top-brand">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--accent-cyan)">
+            <path d="M5 3l14 9-14 9V3z"></path>
+          </svg>
+          Apex <span>Studio</span>
+        </div>
+
+        <div class="status-badge logged-out" id="cardStatusBadge">
+          <span class="status-dot gray" id="cardStatusDot"></span>
+          <span id="cardStatusText">Not logged in</span>
+          <span id="cardStatusAction">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10 17 15 12 10 7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+          </span>
+        </div>
+      </div>
+
       <!-- Logo Area -->
       <div class="brand-header">
         <div class="logo-badge">
@@ -601,96 +813,135 @@
           </div>
         </div>
         <h1 class="brand-title">Apex <span>Editor</span></h1>
-        <p class="brand-sub" id="brandSub">Sign in to access your video projects</p>
+        <p class="brand-sub" id="brandSub">Sign in to access your video editing workspace</p>
       </div>
 
-      <!-- Demo Notification -->
-      <div class="demo-alert" id="demoAlert">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
-        <span id="demoAlertText">Demo mode: Sign-in simulated successfully! Welcome to Apex Editor.</span>
-      </div>
-
-      <!-- Login Form -->
-      <form id="loginForm" autocomplete="on">
-        <!-- Identifier -->
-        <div class="form-group">
-          <label for="identifier">Email or username</label>
-          <div class="input-wrapper">
-            <input
-              type="text"
-              id="identifier"
-              name="username"
-              placeholder="name@example.com"
-              required
-              autocomplete="username"
-            />
+      <!-- Active Session View (shown when logged in) -->
+      <div class="session-view" id="sessionView">
+        <div class="session-card">
+          <div class="session-avatar" id="sessionAvatar">U</div>
+          <div class="session-name" id="sessionName">User</div>
+          <div class="session-email" id="sessionEmail">user@apexeditor.local</div>
+          <div class="session-tag">
+            <span class="status-dot green"></span>
+            Authenticated Account
           </div>
         </div>
 
-        <!-- Password -->
-        <div class="form-group">
-          <label for="password">Password</label>
-          <div class="input-wrapper">
-            <input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="••••••••••••"
-              required
-              autocomplete="current-password"
-            />
-            <button
-              type="button"
-              class="password-toggle"
-              id="togglePassword"
-              title="Toggle password visibility"
-              aria-label="Toggle password visibility"
-            >
-              <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Primary Submit Button -->
-        <button type="submit" id="submitBtn" class="btn-primary disabled" disabled>
-          <div class="spinner" id="btnSpinner"></div>
-          <span id="btnText">Log in</span>
+        <button type="button" class="btn-enter-studio" id="btnEnterStudio">
+          <span>Enter Video Studio</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
         </button>
 
-        <!-- Forgot Password Link -->
-        <div class="forgot-link-wrapper" id="forgotWrapper">
-          <button type="button" class="forgot-link" id="forgotPasswordBtn">
-            Forgot password?
-          </button>
-        </div>
-      </form>
-
-      <!-- Horizontal Divider -->
-      <div class="divider">
-        <div class="divider-line"></div>
-        <span class="divider-text">OR</span>
+        <button type="button" class="btn-logout-full" id="btnLogoutFull">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Log out (revert to empty state)</span>
+        </button>
       </div>
 
-      <!-- Secondary Google Button -->
-      <button type="button" class="btn-google" id="googleBtn">
-        <svg viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
-          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z" />
-          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.04 0 12s.45 3.82 1.25 5.42l4.03-3.15z" />
-          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
-        </svg>
-        <span>Continue with Google</span>
-      </button>
+      <!-- Form Container (shown when logged out) -->
+      <div id="formContainer">
+        <!-- Demo Notification -->
+        <div class="demo-alert" id="demoAlert">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span id="demoAlertText">Demo mode: Sign-in simulated successfully!</span>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" autocomplete="on">
+          <!-- Identifier -->
+          <div class="form-group">
+            <label for="identifier">Email or username</label>
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="identifier"
+                name="username"
+                placeholder="name@example.com"
+                required
+                autocomplete="username"
+              />
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="••••••••••••"
+                required
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                id="togglePassword"
+                title="Toggle password visibility"
+                aria-label="Toggle password visibility"
+              >
+                <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Primary Submit Button with Login Icon inside -->
+          <button type="submit" id="submitBtn" class="btn-primary disabled" disabled>
+            <div class="spinner" id="btnSpinner"></div>
+            <!-- Login icon inside button -->
+            <svg id="btnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10 17 15 12 10 7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+            <span id="btnText">Log in</span>
+          </button>
+
+          <!-- Forgot Password Link -->
+          <div class="forgot-link-wrapper" id="forgotWrapper">
+            <button type="button" class="forgot-link" id="forgotPasswordBtn">
+              Forgot password?
+            </button>
+          </div>
+        </form>
+
+        <!-- Horizontal Divider -->
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">OR</span>
+        </div>
+
+        <!-- Secondary Google Button -->
+        <button type="button" class="btn-google" id="googleBtn">
+          <svg viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z" />
+            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.04 0 12s.45 3.82 1.25 5.42l4.03-3.15z" />
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Secondary Card below main card -->
-    <div class="secondary-card">
+    <!-- Secondary Card below main card: Mode Toggle -->
+    <div class="secondary-card" id="secondaryCard">
       <span id="modePrompt">New to Apex Editor?</span>
       <button type="button" id="toggleModeBtn">Create account</button>
     </div>
@@ -708,7 +959,7 @@
     <p class="copyright">© 2026 Apex Editor. Professional In-Browser Video Studio.</p>
   </footer>
 
-  <!-- Informational Modal -->
+  <!-- Modal for Terms / Privacy / Help -->
   <div class="modal-overlay" id="infoModal">
     <div class="modal-box">
       <h3 class="modal-title" id="modalTitle">Terms of Service</h3>
@@ -723,6 +974,7 @@
       const password = document.getElementById('password');
       const submitBtn = document.getElementById('submitBtn');
       const btnText = document.getElementById('btnText');
+      const btnIcon = document.getElementById('btnIcon');
       const btnSpinner = document.getElementById('btnSpinner');
       const loginForm = document.getElementById('loginForm');
       const togglePassword = document.getElementById('togglePassword');
@@ -735,14 +987,122 @@
       const forgotWrapper = document.getElementById('forgotWrapper');
       const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
       const googleBtn = document.getElementById('googleBtn');
+      const secondaryCard = document.getElementById('secondaryCard');
+
+      // Status indicator elements
+      const headerStatusBadge = document.getElementById('headerStatusBadge');
+      const headerStatusDot = document.getElementById('headerStatusDot');
+      const headerStatusText = document.getElementById('headerStatusText');
+      const headerStatusAction = document.getElementById('headerStatusAction');
+
+      const cardStatusBadge = document.getElementById('cardStatusBadge');
+      const cardStatusDot = document.getElementById('cardStatusDot');
+      const cardStatusText = document.getElementById('cardStatusText');
+      const cardStatusAction = document.getElementById('cardStatusAction');
+
+      // Session view elements
+      const formContainer = document.getElementById('formContainer');
+      const sessionView = document.getElementById('sessionView');
+      const sessionAvatar = document.getElementById('sessionAvatar');
+      const sessionName = document.getElementById('sessionName');
+      const sessionEmail = document.getElementById('sessionEmail');
+      const btnEnterStudio = document.getElementById('btnEnterStudio');
+      const btnLogoutFull = document.getElementById('btnLogoutFull');
+
+      // Modals
       const infoModal = document.getElementById('infoModal');
       const modalTitle = document.getElementById('modalTitle');
       const modalContent = document.getElementById('modalContent');
       const modalClose = document.getElementById('modalClose');
 
       let isSignUp = false;
+      let currentUser = null;
 
-      // Validate inputs and enable/disable primary button
+      // Check saved user in localStorage
+      try {
+        const saved = localStorage.getItem('apex_user');
+        if (saved) {
+          currentUser = JSON.parse(saved);
+        }
+      } catch (e) {}
+
+      const loginArrowSvg = `
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+          <polyline points="10 17 15 12 10 7"></polyline>
+          <line x1="15" y1="12" x2="3" y2="12"></line>
+        </svg>
+      `;
+
+      const logoutArrowSvg = `
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      `;
+
+      function updateStatusBadges() {
+        if (currentUser && currentUser.isLoggedIn) {
+          // Logged in state: green dot + username + logout-arrow icon button
+          headerStatusBadge.className = 'status-badge logged-in';
+          headerStatusDot.className = 'status-dot green';
+          headerStatusText.textContent = currentUser.name;
+          headerStatusAction.innerHTML = `<button type="button" class="logout-icon-btn" title="Log out">${logoutArrowSvg}</button>`;
+
+          cardStatusBadge.className = 'status-badge logged-in';
+          cardStatusDot.className = 'status-dot green';
+          cardStatusText.textContent = currentUser.name;
+          cardStatusAction.innerHTML = `<button type="button" class="logout-icon-btn" title="Log out">${logoutArrowSvg}</button>`;
+
+          // Attach logout event to badge action buttons
+          headerStatusAction.querySelector('.logout-icon-btn')?.addEventListener('click', handleLogout);
+          cardStatusAction.querySelector('.logout-icon-btn')?.addEventListener('click', handleLogout);
+
+          // Show session view, hide form
+          formContainer.style.display = 'none';
+          secondaryCard.style.display = 'none';
+          sessionView.classList.add('active');
+          sessionAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
+          sessionName.textContent = currentUser.name;
+          sessionEmail.textContent = currentUser.email;
+          brandSub.textContent = 'Session verified. Account is ready to edit video.';
+        } else {
+          // Logged out state: gray dot + "Not logged in" + login-arrow icon
+          headerStatusBadge.className = 'status-badge logged-out';
+          headerStatusDot.className = 'status-dot gray';
+          headerStatusText.textContent = 'Not logged in';
+          headerStatusAction.innerHTML = loginArrowSvg;
+
+          cardStatusBadge.className = 'status-badge logged-out';
+          cardStatusDot.className = 'status-dot gray';
+          cardStatusText.textContent = 'Not logged in';
+          cardStatusAction.innerHTML = loginArrowSvg;
+
+          // Show form, hide session view
+          formContainer.style.display = 'block';
+          secondaryCard.style.display = 'block';
+          sessionView.classList.remove('active');
+          brandSub.textContent = isSignUp
+            ? 'Create an account to start editing video'
+            : 'Sign in to access your video editing workspace';
+        }
+      }
+
+      function handleLogout() {
+        currentUser = null;
+        try {
+          localStorage.removeItem('apex_user');
+        } catch (e) {}
+
+        // Revert form to empty state
+        identifier.value = '';
+        password.value = '';
+        validate();
+        demoAlert.classList.remove('show');
+        updateStatusBadges();
+      }
+
       function validate() {
         const hasId = identifier.value.trim().length > 0;
         const hasPw = password.value.trim().length > 0;
@@ -777,56 +1137,63 @@
         }
       });
 
-      // Submit handling (simulated auth)
+      // Submit handling: simulates login, swaps status badge, shows logout button
       loginForm.addEventListener('submit', function (e) {
         e.preventDefault();
         if (submitBtn.disabled) return;
 
         submitBtn.disabled = true;
         btnSpinner.style.display = 'inline-block';
-        btnText.textContent = isSignUp ? 'Creating account...' : 'Signing in...';
+        btnIcon.style.display = 'none';
+        btnText.textContent = isSignUp ? 'Authenticating...' : 'Authenticating...';
         demoAlert.classList.remove('show');
 
         setTimeout(function () {
           btnSpinner.style.display = 'none';
+          btnIcon.style.display = 'inline-block';
           btnText.textContent = isSignUp ? 'Create account' : 'Log in';
           submitBtn.disabled = false;
 
-          const userName = identifier.value.trim().split('@')[0] || 'Apex Creator';
+          const parsedName = identifier.value.trim().split('@')[0] || 'Apex Creator';
+          currentUser = {
+            name: parsedName,
+            email: identifier.value.trim(),
+            isLoggedIn: true
+          };
+
           try {
-            localStorage.setItem('apex_user', JSON.stringify({
-              name: userName,
-              email: identifier.value.trim(),
-              isLoggedIn: true
-            }));
+            localStorage.setItem('apex_user', JSON.stringify(currentUser));
           } catch(e) {}
 
-          demoAlertText.textContent = isSignUp
-            ? 'Demo Mode: Account created successfully! Launching Apex Editor...'
-            : 'Demo Mode: Authentication simulated successfully! Welcome back to Apex Editor.';
-          demoAlert.classList.add('show');
+          updateStatusBadges();
 
-          setTimeout(function () {
-            window.location.href = '/#editor';
-          }, 800);
-        }, 900);
+          demoAlertText.textContent = isSignUp
+            ? 'Demo Mode: Account created successfully! Session active.'
+            : 'Demo Mode: Authentication simulated successfully! Session active.';
+          demoAlert.classList.add('show');
+        }, 850);
       });
 
       // Google Sign In (simulated)
       googleBtn.addEventListener('click', function () {
+        currentUser = {
+          name: 'Google Creator',
+          email: 'creator@gmail.com',
+          isLoggedIn: true
+        };
         try {
-          localStorage.setItem('apex_user', JSON.stringify({
-            name: 'Google Creator',
-            email: 'creator@gmail.com',
-            isLoggedIn: true
-          }));
-        } catch(e) {}
-        demoAlertText.textContent = 'Demo Mode: Google authentication simulated successfully! Launching...';
-        demoAlert.classList.add('show');
-        setTimeout(function () {
-          window.location.href = '/#editor';
-        }, 700);
+          localStorage.setItem('apex_user', JSON.stringify(currentUser));
+        } catch (e) {}
+        updateStatusBadges();
       });
+
+      // Enter Video Studio once logged in
+      btnEnterStudio.addEventListener('click', function () {
+        window.location.href = '/#editor';
+      });
+
+      // Full logout button in session view
+      btnLogoutFull.addEventListener('click', handleLogout);
 
       // Forgot password
       forgotPasswordBtn.addEventListener('click', function () {
@@ -842,13 +1209,13 @@
           btnText.textContent = 'Create account';
           modePrompt.textContent = 'Already have an account?';
           toggleModeBtn.textContent = 'Log in';
-          brandSub.textContent = 'Create your account to start editing';
+          brandSub.textContent = 'Create an account to start editing video';
           forgotWrapper.style.display = 'none';
         } else {
           btnText.textContent = 'Log in';
           modePrompt.textContent = 'New to Apex Editor?';
           toggleModeBtn.textContent = 'Create account';
-          brandSub.textContent = 'Sign in to access your video projects';
+          brandSub.textContent = 'Sign in to access your video editing workspace';
           forgotWrapper.style.display = 'block';
         }
         validate();
@@ -858,7 +1225,7 @@
       const modalData = {
         terms: {
           title: 'Terms of Service',
-          text: 'Apex Editor operates client-side in modern browsers using WebAssembly and Web Audio. Your video files and personal content remain exclusively on your local device.'
+          text: 'An account is required to edit videos. Apex Editor processes video locally in your browser using WebAssembly and Web Audio. Your video files and personal content remain exclusively on your local device.'
         },
         privacy: {
           title: 'Privacy Policy',
@@ -866,7 +1233,7 @@
         },
         help: {
           title: 'Apex Editor Help',
-          text: 'Need assistance? Press Ctrl+J to summon the AI Co-Pilot assistant for instant timeline editing, color grading, audio ducking, and rendering assistance.'
+          text: 'Need assistance? Once signed in, press Ctrl+J to summon the AI Co-Pilot assistant for instant timeline editing, color grading, audio ducking, and rendering assistance.'
         }
       };
 
@@ -890,6 +1257,10 @@
           infoModal.classList.remove('open');
         }
       });
+
+      // Initialize badges
+      updateStatusBadges();
+      validate();
     })();
   </script>
 </body>

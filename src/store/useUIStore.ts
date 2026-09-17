@@ -69,12 +69,11 @@ const getInitialUser = (): UserProfile | null => {
 };
 
 const getInitialPage = (): 'editor' | 'login' => {
-  if (typeof window !== 'undefined') {
-    if (window.location.hash === '#login') return 'login';
-    if (window.location.hash === '#editor') return 'editor';
-  }
   const user = getInitialUser();
-  return user ? 'editor' : 'login';
+  // An account is strictly required to enter the editor
+  if (!user || !user.isLoggedIn) return 'login';
+  if (typeof window !== 'undefined' && window.location.hash === '#login') return 'login';
+  return 'editor';
 };
 
 export const useUIStore = create<UIState>((set) => ({

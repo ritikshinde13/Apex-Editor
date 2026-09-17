@@ -24,16 +24,21 @@ export const App: React.FC = () => {
   const { project, markDirty } = useProjectStore();
   const { tracks, clips } = useEditorStore();
   const { items } = useMediaStore();
-  const { showToast, currentPage, setCurrentPage } = useUIStore();
+  const { showToast, currentPage, setCurrentPage, currentUser } = useUIStore();
 
   const [isWindowDragOver, setIsWindowDragOver] = useState(false);
 
-  // Sync route with URL hash #login or #editor
+  // Strict route sync: An account is strictly required to edit video
   useEffect(() => {
     const handleHashSync = () => {
-      if (window.location.hash === '#login') {
+      if (!currentUser || !currentUser.isLoggedIn) {
         setCurrentPage('login');
-      } else if (window.location.hash === '#editor') {
+        if (window.location.hash && window.location.hash !== '#login') {
+          window.location.hash = '#login';
+        }
+      } else if (window.location.hash === '#login') {
+        setCurrentPage('login');
+      } else {
         setCurrentPage('editor');
       }
     };
@@ -41,7 +46,7 @@ export const App: React.FC = () => {
     handleHashSync();
     window.addEventListener('hashchange', handleHashSync);
     return () => window.removeEventListener('hashchange', handleHashSync);
-  }, [setCurrentPage]);
+  }, [setCurrentPage, currentUser]);
 
   // Global window drag-and-drop file import
   useEffect(() => {
@@ -107,7 +112,7 @@ export const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [project, tracks, clips, items, markDirty]);
 
-  if (currentPage === 'login') {
+  if (currentPage === 'login' || !currentUser?.isLoggedIn) {
     return (
       <div className="h-screen w-screen bg-[#0d0d0f] overflow-y-auto">
         <LoginPage />
