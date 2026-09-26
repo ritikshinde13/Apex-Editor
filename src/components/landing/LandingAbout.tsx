@@ -22,6 +22,7 @@ import {
   Monitor,
   Eye,
   Video,
+  Layers,
 } from 'lucide-react';
 import { BRANDING } from '@/branding';
 import { useUIStore } from '@/store/useUIStore';
@@ -38,6 +39,22 @@ interface DemoProject {
 }
 
 const DEMO_PROJECTS: DemoProject[] = [
+  {
+    id: '3d-animation',
+    title: '3D CGI Animated Cartoon & Spatial Scene',
+    badge: '3D Animation • Spatial Engine',
+    videoSrc: '/samples/demo_3d_animation.webm',
+    defaultRatio: '16:9',
+    description:
+      'High-energy 3D animated cartoon character scene rendered in full 3D spatial perspective with live real-time camera rotations, dynamic depth shadows, and cinematic color LUTs.',
+    tags: ['3D Animated', 'Spatial 3D', 'CGI Cartoon', 'Color LUTs'],
+    edits: [
+      'Rendered with full Spatial 3D depth & perspective',
+      'Enhanced with Cyberpunk & Vibrant 32-bit color grade',
+      'Dynamic 3D camera pan & tilt-shift effect',
+      'Frame-accurate cut splicing on multi-track timeline',
+    ],
+  },
   {
     id: 'nature',
     title: 'Cinematic Nature & Travel Master',
@@ -87,6 +104,24 @@ const FILTER_PRESETS: FilterPreset[] = [
   { id: 'raw', name: 'Raw (Unedited)', css: 'none', badge: 'Original' },
 ];
 
+interface Spatial3DPreset {
+  id: string;
+  name: string;
+  rotateX: number;
+  rotateY: number;
+  rotateZ: number;
+  z: number;
+  perspective: number;
+}
+
+const SPATIAL_3D_PRESETS: Spatial3DPreset[] = [
+  { id: 'floating', name: 'Floating 3D Card', rotateX: 14, rotateY: -18, rotateZ: 2, z: 120, perspective: 1100 },
+  { id: 'isometric', name: 'Isometric 3D', rotateX: 24, rotateY: -32, rotateZ: 0, z: 40, perspective: 1200 },
+  { id: 'cinematic', name: 'Cinematic Tilt', rotateX: 28, rotateY: 0, rotateZ: 0, z: 60, perspective: 950 },
+  { id: 'popout', name: 'Dramatic Pop-Out', rotateX: -12, rotateY: 20, rotateZ: -4, z: 180, perspective: 750 },
+  { id: 'flat', name: 'Flat 2D View', rotateX: 0, rotateY: 0, rotateZ: 0, z: 0, perspective: 1000 },
+];
+
 export const LandingAbout: React.FC = () => {
   const { setCurrentPage } = useUIStore();
 
@@ -101,9 +136,42 @@ export const LandingAbout: React.FC = () => {
   const [currentTimeStr, setCurrentTimeStr] = useState('00:00');
   const [durationStr, setDurationStr] = useState('00:00');
 
+  // 3D Spatial Animation State
+  const [isAutoOrbit, setIsAutoOrbit] = useState(true);
+  const [selected3DPresetId, setSelected3DPresetId] = useState('floating');
+  const [orbitRotX, setOrbitRotX] = useState(14);
+  const [orbitRotY, setOrbitRotY] = useState(-18);
+  const [orbitZ, setOrbitZ] = useState(100);
+
   const videoRef = useRef<HTMLVideoElement>(null);
+
   const activeProject = DEMO_PROJECTS[activeProjectIdx];
   const activeFilter = FILTER_PRESETS.find((f) => f.id === selectedFilterId) || FILTER_PRESETS[0];
+  const active3DPreset = SPATIAL_3D_PRESETS.find((p) => p.id === selected3DPresetId) || SPATIAL_3D_PRESETS[0];
+
+  // 3D Auto-Orbit animation loop
+  useEffect(() => {
+    if (!isAutoOrbit) return;
+    let animId: number;
+
+    const loop = () => {
+      const time = Date.now() / 1000;
+      const rotY = Math.sin(time * 0.8) * 16;
+      const rotX = 12 + Math.cos(time * 0.7) * 7;
+      const zDepth = 90 + Math.sin(time * 1.2) * 35;
+
+      setOrbitRotX(rotX);
+      setOrbitRotY(rotY);
+      setOrbitZ(zDepth);
+
+      animId = requestAnimationFrame(loop);
+    };
+
+    animId = requestAnimationFrame(loop);
+    return () => {
+      cancelAnimationFrame(animId);
+    };
+  }, [isAutoOrbit]);
 
   const formatSecs = (sec: number): string => {
     if (isNaN(sec) || !isFinite(sec)) return '00:00';
@@ -159,6 +227,11 @@ export const LandingAbout: React.FC = () => {
     }
   };
 
+  const handleSelect3DPreset = (presetId: string) => {
+    setSelected3DPresetId(presetId);
+    setIsAutoOrbit(false);
+  };
+
   const handleOpenStudio = () => {
     window.location.hash = '#editor';
     setCurrentPage('editor');
@@ -174,43 +247,48 @@ export const LandingAbout: React.FC = () => {
   // Video filter calculation
   const computedFilterStyle = showRawBefore ? 'none' : activeFilter.css;
 
+  // 3D Transform Calculation
+  const computed3DTransform = isAutoOrbit
+    ? `perspective(1100px) rotateX(${orbitRotX.toFixed(2)}deg) rotateY(${orbitRotY.toFixed(2)}deg) translateZ(${orbitZ.toFixed(2)}px)`
+    : `perspective(${active3DPreset.perspective}px) rotateX(${active3DPreset.rotateX}deg) rotateY(${active3DPreset.rotateY}deg) rotateZ(${active3DPreset.rotateZ}deg) translateZ(${active3DPreset.z}px)`;
+
   const techStack = [
     { name: 'React 19', role: 'UI Framework' },
     { name: 'TypeScript', role: 'Type Safety' },
+    { name: 'Spatial3D Engine', role: '3D Projections' },
     { name: 'Tailwind CSS', role: 'Design System' },
     { name: 'WebAssembly (WASM)', role: 'Client Engine' },
-    { name: 'Web Audio API', role: 'Sound Mixing' },
+    { name: 'Web Audio API', role: '3D Sound Mixing' },
     { name: 'HTML5 Canvas', role: 'Compositor' },
     { name: 'Zustand + Immer', role: 'State Engine' },
-    { name: 'IndexedDB', role: 'Local Storage' },
     { name: 'Vite 8', role: 'Build Tool' },
   ];
 
   const whatYouCanDo = [
     {
-      icon: Scissors,
-      title: 'Precision Slicing & Trimming',
-      desc: 'Split clips at the exact millisecond with "S" key shortcut, ripple-delete gaps, and splice multi-layered video tracks.',
+      icon: Layers,
+      title: 'Spatial 3D Video & Scene Transforms',
+      desc: 'Rotate videos in full 3D space with Pitch (X), Yaw (Y), Roll (Z), perspective camera depth, and dynamic floor cast shadows powered by our built-in Spatial3D engine.',
     },
     {
       icon: Palette,
       title: '36+ Cinematic LUT Color Grading',
-      desc: 'Enhance raw footage with instant professional color grades, saturation curves, exposure balance, and real-time split preview.',
+      desc: 'Enhance raw 3D animated renders or live footage with instant professional color grades, saturation curves, exposure balance, and real-time split preview.',
+    },
+    {
+      icon: Scissors,
+      title: 'Precision Slicing & Multi-Track Cut',
+      desc: 'Split clips at the exact millisecond with "S" key shortcut, ripple-delete gaps, and splice multi-layered video, audio, and text tracks seamlessly.',
     },
     {
       icon: Volume2,
-      title: 'Multi-Track Audio & 3D Spatial Sound',
-      desc: 'Mix background soundtracks, voiceovers, and sound effects with independent volume sliders, audio ducking, and 3D stereo panning.',
+      title: '3D Spatial Audio & Multi-Track Sound',
+      desc: 'Position soundtracks, voiceovers, and sound effects in 360-degree binaural stereo space with independent volume sliders and audio ducking.',
     },
     {
       icon: Smartphone,
       title: 'Multi-Platform Social Auto-Framing',
-      desc: 'Instantly re-frame any video for YouTube (16:9), TikTok & Reels (9:16), or Instagram (1:1 & 4:5) without re-shooting.',
-    },
-    {
-      icon: Film,
-      title: 'Dynamic Animated Titles & Overlays',
-      desc: 'Add animated lower-thirds, kinetic subtitles, custom branding logos, and transition effects directly on the timeline.',
+      desc: 'Instantly re-frame any video for YouTube (16:9), TikTok & Reels (9:16), or Instagram (1:1 & 4:5) with dynamic responsive centering.',
     },
     {
       icon: ShieldCheck,
@@ -227,7 +305,7 @@ export const LandingAbout: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5 text-[#00C9A7]" />
-            <span>ABOUT & PROJECT DEMO</span>
+            <span>ANIMATED 3D VIDEO & PROJECT DEMO</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
@@ -235,11 +313,11 @@ export const LandingAbout: React.FC = () => {
           </h2>
 
           <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
-            See real videos created and edited inside this project, discover what you can build, and learn about the developer behind it.
+            Experience our animated 3D video demonstration, explore real in-browser video editing capabilities, and meet the developer.
           </p>
         </div>
 
-        {/* 🎬 FEATURED INTERACTIVE VIDEO DEMO SHOWCASE: What You Do From This Project */}
+        {/* 🎬 FEATURED INTERACTIVE ANIMATED 3D VIDEO DEMO SHOWCASE */}
         <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-2xl relative overflow-hidden">
           
           {/* Subtle glow accents */}
@@ -253,13 +331,13 @@ export const LandingAbout: React.FC = () => {
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#00E5FF]">
                   <Film className="w-4 h-4" />
-                  <span>Live Project Capabilities Demo</span>
+                  <span>Animated 3D Video Showcase</span>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                  What You Can Create With {BRANDING.appName}
+                  Animated 3D Video & What You Can Do
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-400">
-                  Interactive demonstration of real video clips edited, color-graded, and formatted with our in-browser engine.
+                  Real 3D animated CGI video playing inside an interactive Spatial 3D floating canvas with live color grades and camera perspectives.
                 </p>
               </div>
 
@@ -275,25 +353,31 @@ export const LandingAbout: React.FC = () => {
                         : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
                     }`}
                   >
-                    {proj.title.split(' ')[0]} {proj.title.split(' ')[1]}
+                    {idx === 0 ? '🎬 3D Animation' : proj.title.split(' ')[0] + ' ' + proj.title.split(' ')[1]}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Video Player + Editing Controls Grid */}
+            {/* Video Player + 3D Editing Controls Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               
-              {/* Left Column: Interactive Video Preview Container (7 Cols) */}
-              <div className="lg:col-span-7 flex flex-col items-center justify-center">
+              {/* Left Column: Interactive 3D Video Viewport (7 Cols) */}
+              <div className="lg:col-span-7 flex flex-col items-center justify-center min-h-[380px] sm:min-h-[460px] p-2 perspective-[1400px]">
                 
-                {/* Responsive Viewport Frame */}
+                {/* 3D Animated Wrapper Frame with Dynamic Pitch/Yaw/Depth */}
                 <div
-                  className={`w-full max-w-full transition-all duration-300 relative rounded-2xl overflow-hidden bg-black shadow-2xl border border-slate-800 flex items-center justify-center ${
+                  style={{
+                    transform: computed3DTransform,
+                    transformStyle: 'preserve-3d',
+                    transition: isAutoOrbit ? 'none' : 'transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                    boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.8), 0 0 45px rgba(59, 130, 246, 0.3)',
+                  }}
+                  className={`w-full max-w-full relative rounded-2xl overflow-hidden bg-black border border-slate-700/80 flex items-center justify-center ${
                     aspectRatio === '9:16'
-                      ? 'max-w-[320px] aspect-[9/16]'
+                      ? 'max-w-[300px] aspect-[9/16]'
                       : aspectRatio === '1:1'
-                      ? 'max-w-[440px] aspect-square'
+                      ? 'max-w-[400px] aspect-square'
                       : 'w-full aspect-video'
                   }`}
                 >
@@ -316,7 +400,7 @@ export const LandingAbout: React.FC = () => {
 
                   {/* Top Overlay Badges: Status & Filter Mode */}
                   <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-20">
-                    <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[11px] font-bold text-white border border-white/10 flex items-center gap-1.5">
+                    <span className="px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-[11px] font-bold text-white border border-white/10 flex items-center gap-1.5 shadow-md">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                       {activeProject.badge}
                     </span>
@@ -407,22 +491,67 @@ export const LandingAbout: React.FC = () => {
 
                 </div>
 
-                <p className="text-[11px] text-slate-400 mt-3 text-center">
-                  💡 Tip: Click &quot;Hold for Raw&quot; to compare edited footage against unedited camera original.
-                </p>
+                {/* 3D Auto-Orbit Status Badge */}
+                <div className="mt-4 flex items-center gap-3">
+                  <button
+                    onClick={() => setIsAutoOrbit(!isAutoOrbit)}
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                      isAutoOrbit
+                        ? 'bg-blue-600/30 text-[#00E5FF] border border-blue-500/50 shadow-sm'
+                        : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white'
+                    }`}
+                  >
+                    <span className={`w-2 h-2 rounded-full ${isAutoOrbit ? 'bg-[#00E5FF] animate-ping' : 'bg-slate-500'}`} />
+                    <span>{isAutoOrbit ? '🔄 3D Auto-Orbit: Active' : '⏸️ 3D Auto-Orbit: Paused'}</span>
+                  </button>
+
+                  <span className="text-[11px] text-slate-400 hidden sm:inline font-mono">
+                    Pitch: {orbitRotX.toFixed(0)}° • Yaw: {orbitRotY.toFixed(0)}° • Depth: {orbitZ.toFixed(0)}px
+                  </span>
+                </div>
               </div>
 
-              {/* Right Column: Live Editing Tools & Applied Adjustments (5 Cols) */}
-              <div className="lg:col-span-5 space-y-6">
+              {/* Right Column: 3D Presets & Live Controls (5 Cols) */}
+              <div className="lg:col-span-5 space-y-5">
                 
-                {/* 1. Real-time Color Filter Switcher */}
-                <div className="space-y-3">
+                {/* 1. Spatial 3D Perspective Presets */}
+                <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                      <Palette className="w-4 h-4 text-[#00E5FF]" />
-                      <span>Live Color Grade Presets</span>
+                      <Layers className="w-4 h-4 text-[#00E5FF]" />
+                      <span>Spatial 3D Camera Angles</span>
                     </h4>
-                    <span className="text-[10px] text-slate-400">Real-time WebGL LUT</span>
+                    <span className="text-[10px] text-slate-400">Powered by Spatial3D</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {SPATIAL_3D_PRESETS.map((preset) => (
+                      <button
+                        key={preset.id}
+                        onClick={() => handleSelect3DPreset(preset.id)}
+                        className={`p-2 rounded-xl text-left border text-xs transition-all cursor-pointer ${
+                          !isAutoOrbit && selected3DPresetId === preset.id
+                            ? 'bg-blue-600/30 border-blue-500 text-white font-bold ring-1 ring-blue-500'
+                            : 'bg-slate-800/60 border-slate-700/80 text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`}
+                      >
+                        <div className="truncate font-semibold">{preset.name}</div>
+                        <div className="text-[10px] opacity-75 font-mono">
+                          {preset.rotateX}° / {preset.rotateY}°
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Real-time Color Filter Switcher */}
+                <div className="space-y-2.5 pt-2 border-t border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                      <Palette className="w-4 h-4 text-[#00C9A7]" />
+                      <span>Real-Time Color LUT Presets</span>
+                    </h4>
+                    <span className="text-[10px] text-slate-400">WebGL Color Grading</span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -443,14 +572,14 @@ export const LandingAbout: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 2. Format & Social Aspect Ratio Framing */}
-                <div className="space-y-3 pt-2 border-t border-slate-800">
+                {/* 3. Format & Social Aspect Ratio Framing */}
+                <div className="space-y-2.5 pt-2 border-t border-slate-800">
                   <div className="flex items-center justify-between">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                      <Maximize2 className="w-4 h-4 text-[#00C9A7]" />
-                      <span>Social Aspect Ratio Framing</span>
+                      <Maximize2 className="w-4 h-4 text-[#00E5FF]" />
+                      <span>Aspect Ratio Auto-Cropping</span>
                     </h4>
-                    <span className="text-[10px] text-slate-400">One-Click Auto-Crop</span>
+                    <span className="text-[10px] text-slate-400">Social Framing</span>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2">
@@ -495,8 +624,8 @@ export const LandingAbout: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 3. Edits Applied In This Demo */}
-                <div className="space-y-2.5 pt-2 border-t border-slate-800">
+                {/* 4. Edits Applied In This Demo */}
+                <div className="space-y-2 pt-2 border-t border-slate-800">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
                     Edits Applied To This Clip:
                   </h4>
@@ -510,7 +639,7 @@ export const LandingAbout: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 4. Action: Try Editing this in Studio */}
+                {/* 5. Action: Try Editing this in Studio */}
                 <button
                   onClick={handleOpenStudio}
                   className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-[#00C9A7] hover:from-blue-500 hover:to-[#00D8B4] text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer text-sm"
@@ -535,7 +664,7 @@ export const LandingAbout: React.FC = () => {
               What You Can Do With {BRANDING.appName}
             </h3>
             <p className="text-sm sm:text-base text-slate-600">
-              Everything you need to produce studio-grade videos directly in your browser without downloads.
+              Everything you need to produce studio-grade 3D animated & cinematic videos directly in your browser without downloads.
             </p>
           </div>
 
@@ -665,7 +794,7 @@ export const LandingAbout: React.FC = () => {
               </div>
 
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                <strong className="text-slate-900 font-semibold">{BRANDING.appName}</strong> is a high-performance, browser-based creative video editing suite designed to give creators full non-linear editing power directly inside Chrome, Safari, Edge, and Firefox. You can cut video clips, layer animated text, blend multi-track music, create split-screen reactions, and export uncompressed 4K video—all with zero downloads, no forced watermarks, and complete on-device privacy.
+                <strong className="text-slate-900 font-semibold">{BRANDING.appName}</strong> is a high-performance, browser-based creative video editing suite designed to give creators full non-linear editing power directly inside Chrome, Safari, Edge, and Firefox. You can cut video clips, layer animated text, blend multi-track music, apply Spatial 3D rotations, and export uncompressed 4K video—all with zero downloads, no forced watermarks, and complete on-device privacy.
               </p>
             </div>
 
