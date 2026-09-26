@@ -33,9 +33,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     const handleHashSync = () => {
       const hash = window.location.hash.toLowerCase();
-      if (hash === '#landing' || hash === '' || hash === '#') {
-        setCurrentPage('landing');
-      } else if (hash === '#login') {
+      if (hash === '#login') {
         setCurrentPage('login');
       } else if (hash === '#editor') {
         if (!currentUser || !currentUser.isLoggedIn) {
@@ -44,6 +42,9 @@ export const App: React.FC = () => {
         } else {
           setCurrentPage('editor');
         }
+      } else {
+        // Any section hash (#about, #tools, #features, #faq, #app, #resources, #home, #landing, or empty)
+        setCurrentPage('landing');
       }
     };
 

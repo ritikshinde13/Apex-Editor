@@ -6,7 +6,13 @@ import {
   CheckCircle,
 } from 'lucide-react';
 
-export const LandingFooter: React.FC = () => {
+import { LandingSection } from './LandingSidebar';
+
+export interface LandingFooterProps {
+  onSelectSection?: (section: LandingSection) => void;
+}
+
+export const LandingFooter: React.FC<LandingFooterProps> = ({ onSelectSection }) => {
   const { showToast, setCurrentPage } = useUIStore();
 
   const handleLaunchEditor = (e: React.MouseEvent) => {
@@ -24,9 +30,15 @@ export const LandingFooter: React.FC = () => {
     });
   };
 
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  const handleNav = (section: LandingSection, fallbackId?: string) => {
+    if (onSelectSection) {
+      onSelectSection(section);
+      window.location.hash = `#${section}`;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (fallbackId) {
+      const el = document.getElementById(fallbackId);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -74,7 +86,7 @@ export const LandingFooter: React.FC = () => {
               </li>
               <li>
                 <button
-                  onClick={() => scrollTo('features')}
+                  onClick={() => handleNav('features', 'features')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
                   Multi-Track Timeline
@@ -113,7 +125,7 @@ export const LandingFooter: React.FC = () => {
             <ul className="space-y-2 text-xs">
               <li>
                 <button
-                  onClick={() => scrollTo('tools')}
+                  onClick={() => handleNav('tools', 'tools')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
                   WEBM Editor
@@ -121,7 +133,7 @@ export const LandingFooter: React.FC = () => {
               </li>
               <li>
                 <button
-                  onClick={() => scrollTo('tools')}
+                  onClick={() => handleNav('tools', 'tools')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
                   TikTok Video Editor
@@ -129,7 +141,7 @@ export const LandingFooter: React.FC = () => {
               </li>
               <li>
                 <button
-                  onClick={() => scrollTo('tools')}
+                  onClick={() => handleNav('tools', 'tools')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
                   Instagram Reels Maker
@@ -137,7 +149,7 @@ export const LandingFooter: React.FC = () => {
               </li>
               <li>
                 <button
-                  onClick={() => scrollTo('tools')}
+                  onClick={() => handleNav('tools', 'tools')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
                   YouTube Video Editor
@@ -145,7 +157,7 @@ export const LandingFooter: React.FC = () => {
               </li>
               <li>
                 <button
-                  onClick={() => scrollTo('tools')}
+                  onClick={() => handleNav('tools', 'tools')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
                   MP4 Video Cutter
@@ -160,7 +172,7 @@ export const LandingFooter: React.FC = () => {
             <ul className="space-y-2 text-xs">
               <li>
                 <button
-                  onClick={(e) => handleLinkClick(e, 'About Apex Editor')}
+                  onClick={() => handleNav('about', 'about')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
                   About Us
@@ -168,7 +180,7 @@ export const LandingFooter: React.FC = () => {
               </li>
               <li>
                 <button
-                  onClick={() => scrollTo('resources')}
+                  onClick={() => handleNav('resources', 'resources')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
                   Creator Blog
@@ -176,7 +188,7 @@ export const LandingFooter: React.FC = () => {
               </li>
               <li>
                 <button
-                  onClick={() => scrollTo('faq')}
+                  onClick={() => handleNav('faq', 'faq')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
                   Help & FAQ
