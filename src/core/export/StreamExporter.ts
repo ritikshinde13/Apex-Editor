@@ -88,7 +88,7 @@ export class StreamExporter implements IExportEngine {
       }
     };
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.recorder!.onstop = () => {
         audioCtx.close().catch(() => {});
         compositor.dispose();
@@ -113,28 +113,36 @@ export class StreamExporter implements IExportEngine {
       const totalFrames = Math.ceil(this.duration * options.fps);
       const frameDelta = 1 / options.fps;
 
-      for (let f = 0; f <= totalFrames; f++) {
-        if (this.isCancelled) {
-          this.recorder!.stop();
-          return;
+      (async () => {
+        try {
+          for (let f = 0; f <= totalFrames; f++) {
+            if (this.isCancelled) {
+              this.recorder!.stop();
+              return;
+            }
+
+            const currentTime = f * frameDelta;
+            compositor.renderFrame(currentTime, this.tracks, this.clips, this.mediaItems, true);
+
+            const progressPercent = Math.round((f / totalFrames) * 100);
+            onProgress(progressPercent);
+
+            // Yield execution loop slightly so the browser doesn't freeze
+            await new Promise((r) => setTimeout(r, Math.max(2, 1000 / options.fps / 2)));
+          }
+
+          // Small delay to ensure all buffers flush
+          setTimeout(() => {
+            if (this.recorder && this.recorder.state !== 'inactive') {
+              this.recorder.stop();
+            }
+          }, 300);
+        } catch (err) {
+          audioCtx.close().catch(() => {});
+          compositor.dispose();
+          reject(err);
         }
-
-        const currentTime = f * frameDelta;
-        compositor.renderFrame(currentTime, this.tracks, this.clips, this.mediaItems, true);
-
-        const progressPercent = Math.round((f / totalFrames) * 100);
-        onProgress(progressPercent);
-
-        // Yield execution loop slightly so the browser doesn't freeze
-        await new Promise((r) => setTimeout(r, Math.max(2, 1000 / options.fps / 2)));
-      }
-
-      // Small delay to ensure all buffers flush
-      setTimeout(() => {
-        if (this.recorder && this.recorder.state !== 'inactive') {
-          this.recorder.stop();
-        }
-      }, 300);
+      })();
     });
   }
 }

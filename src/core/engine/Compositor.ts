@@ -3,12 +3,14 @@ import { MediaItem } from '@/types/media';
 import { computeFilterCSS } from '../filters/filterDefinitions';
 import { useMediaStore } from '@/store/useMediaStore';
 import { useEditorStore } from '@/store/useEditorStore';
+import { has3DTransform, render3DQuad } from './Spatial3D';
 
 export class Compositor {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private offscreenCanvas: HTMLCanvasElement;
   private offscreenCtx: CanvasRenderingContext2D;
+  private textBufferCanvas: HTMLCanvasElement;
 
   private videoCache: Map<string, HTMLVideoElement> = new Map();
   private imageCache: Map<string, HTMLImageElement> = new Map();
@@ -31,6 +33,7 @@ export class Compositor {
       throw new Error('Failed to obtain offscreen 2D canvas context.');
     }
     this.offscreenCtx = offCtx;
+    this.textBufferCanvas = document.createElement('canvas');
   }
 
   /**
@@ -231,17 +234,21 @@ export class Compositor {
 
     ctx.filter = cssFilterString;
 
-    // Position center & apply transform matrix
-    const centerX = width / 2 + clip.transform.x;
-    const centerY = height / 2 + clip.transform.y;
-    ctx.translate(centerX, centerY);
+    const is3D = has3DTransform(clip.transform);
 
-    if (clip.transform.rotation !== 0) {
-      ctx.rotate((clip.transform.rotation * Math.PI) / 180);
+    // If 2D, apply standard canvas affine translation & rotation
+    if (!is3D) {
+      const centerX = width / 2 + clip.transform.x;
+      const centerY = height / 2 + clip.transform.y;
+      ctx.translate(centerX, centerY);
+
+      if (clip.transform.rotation !== 0) {
+        ctx.rotate((clip.transform.rotation * Math.PI) / 180);
+      }
+
+      const scale = clip.transform.scale || 1.0;
+      ctx.scale(scale, scale);
     }
-
-    const scale = clip.transform.scale || 1.0;
-    ctx.scale(scale, scale);
 
     // Render by type
     if (clip.type === 'video' && mediaUrl) {
@@ -309,11 +316,23 @@ export class Compositor {
         if (cCtx) {
           cCtx.drawImage(video, 0, 0);
         }
+      }
 
-        ctx.drawImage(video, -renderW / 2, -renderH / 2, renderW, renderH);
-      } else if (cached && cached.width > 0) {
-        // While video is seeking or decoding, fall back to last known frame (ZERO BLINKING)
-        ctx.drawImage(cached, -renderW / 2, -renderH / 2, renderW, renderH);
+      const sourceDrawable =
+        video.readyState >= 2 && video.videoWidth > 0
+          ? video
+          : cached && cached.width > 0
+          ? cached
+          : null;
+
+      if (sourceDrawable) {
+        if (is3D) {
+          const sW = video.videoWidth || cached?.width || width;
+          const sH = video.videoHeight || cached?.height || height;
+          render3DQuad(ctx, sourceDrawable, sW, sH, renderW, renderH, clip.transform, width / 2, height / 2);
+        } else {
+          ctx.drawImage(sourceDrawable, -renderW / 2, -renderH / 2, renderW, renderH);
+        }
       }
     } else if (clip.type === 'image' && mediaUrl) {
       const img = this.getImageElement(clip.mediaId!, mediaUrl);
@@ -328,10 +347,20 @@ export class Compositor {
         } else {
           drawW = height * imgAspect;
         }
-        ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+
+        if (is3D) {
+          render3DQuad(ctx, img, img.naturalWidth, img.naturalHeight, drawW, drawH, clip.transform, width / 2, height / 2);
+        } else {
+          ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+        }
       }
     } else if (clip.type === 'text' && clip.text) {
-      this.renderTextClip(ctx, clip.text);
+      if (is3D) {
+        const textCanvas = this.renderTextToBuffer(clip.text, width, height);
+        render3DQuad(ctx, textCanvas, width, height, width, height, clip.transform, width / 2, height / 2);
+      } else {
+        this.renderTextClip(ctx, clip.text);
+      }
     }
 
     // Apply color overlay tint if filter defines one
@@ -340,7 +369,11 @@ export class Compositor {
       ctx.filter = 'none';
       ctx.globalCompositeOperation = blendMode || 'soft-light';
       ctx.fillStyle = colorOverlay;
-      ctx.fillRect(-width / 2, -height / 2, width, height);
+      if (is3D) {
+        ctx.fillRect(0, 0, width, height);
+      } else {
+        ctx.fillRect(-width / 2, -height / 2, width, height);
+      }
       ctx.restore();
     }
 
@@ -390,6 +423,25 @@ export class Compositor {
   }
 
   /**
+   * Render text element to offscreen canvas buffer for 3D spatial transformation
+   */
+  private renderTextToBuffer(textProps: NonNullable<TimelineClip['text']>, width: number, height: number): HTMLCanvasElement {
+    if (this.textBufferCanvas.width !== width || this.textBufferCanvas.height !== height) {
+      this.textBufferCanvas.width = width;
+      this.textBufferCanvas.height = height;
+    }
+    const tCtx = this.textBufferCanvas.getContext('2d');
+    if (tCtx) {
+      tCtx.clearRect(0, 0, width, height);
+      tCtx.save();
+      tCtx.translate(width / 2, height / 2);
+      this.renderTextClip(tCtx, textProps);
+      tCtx.restore();
+    }
+    return this.textBufferCanvas;
+  }
+
+  /**
    * Render subtle or dramatic vignette radial gradient
    */
   private renderVignette(ctx: CanvasRenderingContext2D, width: number, height: number, intensity: number) {
@@ -420,6 +472,14 @@ export class Compositor {
    */
   public dispose() {
     this.pauseAllVideos();
+    this.videoCache.forEach((video) => {
+      try {
+        video.src = '';
+        video.load();
+      } catch {
+        // ignore
+      }
+    });
     this.videoCache.clear();
     this.imageCache.clear();
     this.lastFrameCache.clear();

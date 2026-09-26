@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useEditorStore } from '@/store/useEditorStore';
 import { usePlaybackStore } from '@/store/usePlaybackStore';
 import { useUIStore } from '@/store/useUIStore';
 import { TimelineClip } from '@/types/timeline';
+import { generateUniqueId } from '@/utils/id';
 import { Play, Pause, Plus } from 'lucide-react';
 
 interface AudioPreset {
@@ -61,12 +62,12 @@ export const AudioLibrary: React.FC = () => {
     }
   };
 
-  const handleAddAudioToTimeline = (preset: AudioPreset) => {
+  const handleAddAudioToTimeline = useCallback((preset: AudioPreset) => {
     // Find audio track
     const audioTrack = tracks.find((t) => t.type === 'audio') || tracks[tracks.length - 1];
 
     const newClip: TimelineClip = {
-      id: `clip-audio-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      id: generateUniqueId('clip-audio'),
       trackId: audioTrack.id,
       type: 'audio',
       title: preset.title,
@@ -92,7 +93,7 @@ export const AudioLibrary: React.FC = () => {
       title: 'Audio Added',
       message: `"${preset.title}" placed on ${audioTrack.name} at ${currentTime.toFixed(1)}s`,
     });
-  };
+  }, [tracks, currentTime, addClip, showToast]);
 
   return (
     <div className="flex flex-col h-full bg-editor-panel p-3 select-none">

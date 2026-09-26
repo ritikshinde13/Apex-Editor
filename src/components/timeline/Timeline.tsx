@@ -131,16 +131,16 @@ export const Timeline: React.FC = () => {
   const timelineHeight = tracks.length * 56 + 32;
 
   return (
-    <div className="h-72 bg-editor-bg border-t border-editor-border flex flex-col select-none relative z-20">
+    <div className="h-72 backdrop-blur-2xl bg-editor-panel/75 border-t border-white/[0.08] flex flex-col select-none relative z-20 shadow-glass specular-border">
       {/* Top Controls Toolbar */}
       <TimelineToolbar />
 
       {/* Timeline Workspace (Track Headers + Scrollable Lanes) */}
       <div className="flex-1 flex overflow-hidden relative">
         {/* Left Frozen Column: Track Headers */}
-        <div className="w-48 bg-editor-panel border-r border-editor-border flex flex-col shrink-0 z-30 shadow-md">
+        <div className="w-48 backdrop-blur-xl bg-black/40 border-r border-white/[0.08] flex flex-col shrink-0 z-30 shadow-glass-sm">
           {/* Ruler offset spacer */}
-          <div className="h-7 bg-editor-panel border-b border-editor-border flex items-center px-3 text-[10px] uppercase font-bold text-editor-dim">
+          <div className="h-7 backdrop-blur-md bg-white/[0.02] border-b border-white/[0.08] flex items-center px-3 text-[10px] uppercase font-bold text-editor-dim tracking-wider">
             Tracks
           </div>
 
@@ -156,7 +156,7 @@ export const Timeline: React.FC = () => {
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-x-auto overflow-y-hidden relative bg-editor-bg timeline-grid-pattern"
+          className="flex-1 overflow-x-auto overflow-y-hidden relative bg-black/25 backdrop-blur-sm timeline-grid-pattern"
         >
           <div style={{ width: `${timelineContentWidth}px` }} className="relative">
             {/* Dynamic Time Ruler */}
@@ -182,8 +182,8 @@ export const Timeline: React.FC = () => {
                 <div
                   key={track.id}
                   style={{ width: `${timelineContentWidth}px` }}
-                  className={`h-14 border-b border-editor-border/60 relative ${
-                    track.isLocked ? 'bg-black/40 pointer-events-none opacity-60' : ''
+                  className={`h-14 border-b border-white/[0.05] relative hover:bg-white/[0.015] transition-colors ${
+                    track.isLocked ? 'bg-black/60 pointer-events-none opacity-50' : ''
                   }`}
                 >
                   {/* Render clips residing on this track */}

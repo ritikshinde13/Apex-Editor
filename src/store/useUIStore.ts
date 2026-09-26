@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { generateUniqueId } from '@/utils/id';
 
 export type LeftDockTab = 'media' | 'audio' | 'text' | 'filters' | 'fx' | 'transitions';
 export type ActiveTool = 'select' | 'razor';
@@ -35,7 +36,7 @@ interface UIState {
   isShortcutsModalOpen: boolean;
   isComparingBeforeAfter: boolean;
   isChatBotOpen: boolean;
-  currentPage: 'editor' | 'login';
+  currentPage: 'editor' | 'login' | 'landing';
   currentUser: UserProfile | null;
   toasts: ToastNotification[];
   confirmDialog: ConfirmDialogOptions | null;
@@ -50,7 +51,7 @@ interface UIState {
   toggleComparingBeforeAfter: () => void;
   setChatBotOpen: (open: boolean) => void;
   toggleChatBot: () => void;
-  setCurrentPage: (page: 'editor' | 'login') => void;
+  setCurrentPage: (page: 'editor' | 'login' | 'landing') => void;
   setCurrentUser: (user: UserProfile | null) => void;
   showToast: (toast: Omit<ToastNotification, 'id'>) => void;
   removeToast: (id: string) => void;
@@ -68,12 +69,18 @@ const getInitialUser = (): UserProfile | null => {
   return null;
 };
 
-const getInitialPage = (): 'editor' | 'login' => {
-  const user = getInitialUser();
-  // An account is strictly required to enter the editor
-  if (!user || !user.isLoggedIn) return 'login';
-  if (typeof window !== 'undefined' && window.location.hash === '#login') return 'login';
-  return 'editor';
+const getInitialPage = (): 'editor' | 'login' | 'landing' => {
+  if (typeof window !== 'undefined') {
+    const hash = window.location.hash;
+    if (hash === '#landing') return 'landing';
+    if (hash === '#login') return 'login';
+    if (hash === '#editor') {
+      const user = getInitialUser();
+      return user && user.isLoggedIn ? 'editor' : 'login';
+    }
+  }
+  // Default to landing page on root or when no specific studio hash is present
+  return 'landing';
 };
 
 export const useUIStore = create<UIState>((set) => ({
@@ -98,7 +105,7 @@ export const useUIStore = create<UIState>((set) => ({
   toggleComparingBeforeAfter: () => set((state) => ({ isComparingBeforeAfter: !state.isComparingBeforeAfter })),
   setChatBotOpen: (open: boolean) => set({ isChatBotOpen: open }),
   toggleChatBot: () => set((state) => ({ isChatBotOpen: !state.isChatBotOpen })),
-  setCurrentPage: (page: 'editor' | 'login') => set({ currentPage: page }),
+  setCurrentPage: (page: 'editor' | 'login' | 'landing') => set({ currentPage: page }),
   setCurrentUser: (user: UserProfile | null) => {
     if (user) {
       try {
@@ -117,7 +124,7 @@ export const useUIStore = create<UIState>((set) => ({
   },
 
   showToast: (toast) => {
-    const id = `toast-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const id = generateUniqueId('toast');
     const newToast: ToastNotification = { ...toast, id };
 
     set((state) => {

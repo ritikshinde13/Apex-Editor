@@ -21,7 +21,9 @@ import {
   Sparkles,
   User,
   LogOut,
+  Home,
 } from 'lucide-react';
+import { AnimatedButton } from '@/components/ui/animated-button';
 
 export const HeaderNav: React.FC = () => {
   const { project, setProjectName } = useProjectStore();
@@ -105,6 +107,7 @@ export const HeaderNav: React.FC = () => {
           message: `Loaded ${projectData.settings.name}`,
         });
       } catch (err) {
+        console.error('Failed to open project file:', err);
         showToast({
           type: 'error',
           title: 'Open Failed',
@@ -133,7 +136,7 @@ export const HeaderNav: React.FC = () => {
   };
 
   return (
-    <header className="h-14 bg-editor-panel border-b border-editor-border px-4 flex items-center justify-between select-none z-30 relative">
+    <header className="h-14 backdrop-blur-2xl bg-editor-panel/75 border-b border-white/[0.08] shadow-glass px-4 flex items-center justify-between select-none z-30 relative specular-border">
       {/* Hidden file input for opening project */}
       <input
         type="file"
@@ -144,35 +147,44 @@ export const HeaderNav: React.FC = () => {
       />
 
       {/* Left: Brand Monogram & Menu */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-accent-cyan to-accent-purple p-1.5 shadow-glow-cyan flex items-center justify-center">
+      <div className="flex items-center gap-3 sm:gap-4">
+        <button
+          onClick={() => {
+            window.location.hash = '#landing';
+            setCurrentPage('landing');
+          }}
+          title="Return to Landing Page"
+          className="flex items-center gap-2.5 group cursor-pointer text-left focus:outline-none"
+        >
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-accent-cyan via-blue-500 to-accent-purple p-1.5 shadow-glow-cyan flex items-center justify-center border border-white/20 group-hover:scale-105 transition-transform">
             <svg viewBox="0 0 24 24" fill="currentColor" className="text-black w-full h-full">
               <path d={BRANDING.logo.svgPath} />
             </svg>
           </div>
-          <span className="font-bold tracking-tight text-base text-editor-text hidden sm:inline">
-            Apex <span className="text-accent-cyan font-normal">Editor</span>
+          <span className="font-bold tracking-tight text-base text-editor-text hidden sm:inline group-hover:text-white transition-colors">
+            Apex <span className="text-accent-cyan font-normal drop-shadow-[0_0_8px_rgba(0,229,255,0.4)]">Editor</span>
           </span>
-        </div>
+        </button>
 
-        <div className="h-5 w-[1px] bg-editor-border mx-1" />
+        <div className="h-5 w-[1px] bg-white/10 mx-1 hidden sm:block" />
 
-        {/* Dropdown Menus */}
-        <nav className="flex items-center gap-1 text-xs font-medium text-editor-subtext">
+        {/* Dropdown Menus in Glass Pills */}
+        <nav className="flex items-center gap-1.5 text-xs font-medium text-editor-subtext">
           {/* File Menu */}
           <div className="relative">
             <button
               onClick={() => setOpenMenu(openMenu === 'file' ? null : 'file')}
-              className={`px-2.5 py-1.5 rounded-lg hover:text-editor-text hover:bg-editor-surface transition-colors flex items-center gap-1 ${
-                openMenu === 'file' ? 'bg-editor-surface text-editor-text' : ''
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                openMenu === 'file'
+                  ? 'glass-pill-active text-white'
+                  : 'glass-pill text-editor-subtext hover:text-white'
               }`}
             >
               File <ChevronDown className="w-3 h-3 opacity-60" />
             </button>
             {openMenu === 'file' && (
               <div
-                className="absolute left-0 top-full mt-1 w-48 bg-editor-panel border border-editor-border rounded-xl shadow-2xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100"
+                className="absolute left-0 top-full mt-2 w-52 glass-panel rounded-2xl shadow-glass-lg border border-white/10 py-1.5 z-50 backdrop-blur-3xl bg-slate-950/85 animate-in fade-in zoom-in-95 duration-100"
                 onMouseLeave={() => setOpenMenu(null)}
               >
                 <button
@@ -180,16 +192,26 @@ export const HeaderNav: React.FC = () => {
                     handleNewProject();
                     setOpenMenu(null);
                   }}
-                  className="w-full text-left px-3 py-2 text-xs text-editor-text hover:bg-editor-surface flex items-center gap-2"
+                  className="w-full text-left px-3.5 py-2 text-xs text-editor-text hover:bg-white/[0.08] hover:text-accent-cyan rounded-xl transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   <PlusCircle className="w-3.5 h-3.5 text-accent-cyan" /> New Project
+                </button>
+                <button
+                  onClick={() => {
+                    window.location.hash = '#landing';
+                    setCurrentPage('landing');
+                    setOpenMenu(null);
+                  }}
+                  className="w-full text-left px-3.5 py-2 text-xs text-editor-text hover:bg-white/[0.08] rounded-xl transition-colors flex items-center gap-2 cursor-pointer"
+                >
+                  <Home className="w-3.5 h-3.5 text-editor-subtext" /> Home Landing Page
                 </button>
                 <button
                   onClick={() => {
                     fileInputRef.current?.click();
                     setOpenMenu(null);
                   }}
-                  className="w-full text-left px-3 py-2 text-xs text-editor-text hover:bg-editor-surface flex items-center gap-2"
+                  className="w-full text-left px-3.5 py-2 text-xs text-editor-text hover:bg-white/[0.08] rounded-xl transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   <FolderOpen className="w-3.5 h-3.5 text-editor-subtext" /> Open Project...
                 </button>
@@ -198,17 +220,17 @@ export const HeaderNav: React.FC = () => {
                     handleSaveProject();
                     setOpenMenu(null);
                   }}
-                  className="w-full text-left px-3 py-2 text-xs text-editor-text hover:bg-editor-surface flex items-center gap-2"
+                  className="w-full text-left px-3.5 py-2 text-xs text-editor-text hover:bg-white/[0.08] rounded-xl transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5 text-editor-subtext" /> Save Project (Ctrl+S)
                 </button>
-                <div className="my-1 border-t border-editor-border" />
+                <div className="my-1 border-t border-white/[0.08]" />
                 <button
                   onClick={() => {
                     setSettingsModalOpen(true);
                     setOpenMenu(null);
                   }}
-                  className="w-full text-left px-3 py-2 text-xs text-editor-text hover:bg-editor-surface flex items-center gap-2"
+                  className="w-full text-left px-3.5 py-2 text-xs text-editor-text hover:bg-white/[0.08] rounded-xl transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   <Settings className="w-3.5 h-3.5 text-editor-subtext" /> Project Settings
                 </button>
@@ -220,15 +242,17 @@ export const HeaderNav: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setOpenMenu(openMenu === 'edit' ? null : 'edit')}
-              className={`px-2.5 py-1.5 rounded-lg hover:text-editor-text hover:bg-editor-surface transition-colors flex items-center gap-1 ${
-                openMenu === 'edit' ? 'bg-editor-surface text-editor-text' : ''
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                openMenu === 'edit'
+                  ? 'glass-pill-active text-white'
+                  : 'glass-pill text-editor-subtext hover:text-white'
               }`}
             >
               Edit <ChevronDown className="w-3 h-3 opacity-60" />
             </button>
             {openMenu === 'edit' && (
               <div
-                className="absolute left-0 top-full mt-1 w-44 bg-editor-panel border border-editor-border rounded-xl shadow-2xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100"
+                className="absolute left-0 top-full mt-2 w-48 glass-panel rounded-2xl shadow-glass-lg border border-white/10 py-1.5 z-50 backdrop-blur-3xl bg-slate-950/85 animate-in fade-in zoom-in-95 duration-100"
                 onMouseLeave={() => setOpenMenu(null)}
               >
                 <button
@@ -237,7 +261,7 @@ export const HeaderNav: React.FC = () => {
                     setOpenMenu(null);
                   }}
                   disabled={!canUndo}
-                  className="w-full text-left px-3 py-2 text-xs text-editor-text hover:bg-editor-surface disabled:opacity-40 flex items-center justify-between"
+                  className="w-full text-left px-3.5 py-2 text-xs text-editor-text hover:bg-white/[0.08] rounded-xl disabled:opacity-30 transition-colors flex items-center justify-between cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
                     <Undo2 className="w-3.5 h-3.5" /> Undo
@@ -250,7 +274,7 @@ export const HeaderNav: React.FC = () => {
                     setOpenMenu(null);
                   }}
                   disabled={!canRedo}
-                  className="w-full text-left px-3 py-2 text-xs text-editor-text hover:bg-editor-surface disabled:opacity-40 flex items-center justify-between"
+                  className="w-full text-left px-3.5 py-2 text-xs text-editor-text hover:bg-white/[0.08] rounded-xl disabled:opacity-30 transition-colors flex items-center justify-between cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
                     <Redo2 className="w-3.5 h-3.5" /> Redo
@@ -265,15 +289,17 @@ export const HeaderNav: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setOpenMenu(openMenu === 'help' ? null : 'help')}
-              className={`px-2.5 py-1.5 rounded-lg hover:text-editor-text hover:bg-editor-surface transition-colors flex items-center gap-1 ${
-                openMenu === 'help' ? 'bg-editor-surface text-editor-text' : ''
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                openMenu === 'help'
+                  ? 'glass-pill-active text-white'
+                  : 'glass-pill text-editor-subtext hover:text-white'
               }`}
             >
               Help <ChevronDown className="w-3 h-3 opacity-60" />
             </button>
             {openMenu === 'help' && (
               <div
-                className="absolute left-0 top-full mt-1 w-48 bg-editor-panel border border-editor-border rounded-xl shadow-2xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100"
+                className="absolute left-0 top-full mt-2 w-52 glass-panel rounded-2xl shadow-glass-lg border border-white/10 py-1.5 z-50 backdrop-blur-3xl bg-slate-950/85 animate-in fade-in zoom-in-95 duration-100"
                 onMouseLeave={() => setOpenMenu(null)}
               >
                 <button
@@ -281,7 +307,7 @@ export const HeaderNav: React.FC = () => {
                     setShortcutsModalOpen(true);
                     setOpenMenu(null);
                   }}
-                  className="w-full text-left px-3 py-2 text-xs text-editor-text hover:bg-editor-surface flex items-center gap-2"
+                  className="w-full text-left px-3.5 py-2 text-xs text-editor-text hover:bg-white/[0.08] hover:text-accent-cyan rounded-xl transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   <HelpCircle className="w-3.5 h-3.5 text-accent-cyan" /> Keyboard Shortcuts
                 </button>
@@ -291,7 +317,7 @@ export const HeaderNav: React.FC = () => {
         </nav>
       </div>
 
-      {/* Center: Editable Project Name */}
+      {/* Center: Editable Project Name in Frosted Capsule */}
       <div className="flex items-center justify-center">
         {isEditingName ? (
           <input
@@ -309,7 +335,7 @@ export const HeaderNav: React.FC = () => {
               }
             }}
             autoFocus
-            className="bg-editor-surface border border-accent-cyan rounded px-2.5 py-1 text-xs font-semibold text-editor-text focus:outline-none"
+            className="glass-pill border border-accent-cyan/80 rounded-full px-4 py-1 text-xs font-semibold text-editor-text focus:outline-none shadow-glow-cyan"
           />
         ) : (
           <button
@@ -318,9 +344,10 @@ export const HeaderNav: React.FC = () => {
               setIsEditingName(true);
             }}
             title="Click to rename project"
-            className="text-xs font-semibold text-editor-text hover:text-accent-cyan px-2.5 py-1 rounded hover:bg-editor-surface transition-colors flex items-center gap-1.5"
+            className="glass-pill px-4 py-1.5 rounded-full text-xs font-semibold text-editor-text hover:text-accent-cyan hover:border-accent-cyan/50 hover:shadow-glow-cyan transition-all flex items-center gap-2 cursor-pointer"
           >
-            {project.name}
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-cyan shadow-[0_0_6px_#00e5ff]" />
+            <span>{project.name}</span>
             <span className="text-[10px] text-editor-dim font-normal">
               ({project.width}x{project.height} @ {project.fps}fps)
             </span>
@@ -330,13 +357,13 @@ export const HeaderNav: React.FC = () => {
 
       {/* Right: Quick Tools & Export CTA */}
       <div className="flex items-center gap-2">
-        {/* Undo / Redo */}
-        <div className="flex items-center bg-editor-surface rounded-lg p-0.5 border border-editor-border">
+        {/* Undo / Redo in Glass Capsule */}
+        <div className="flex items-center glass-pill rounded-full p-0.5 border border-white/10">
           <button
             onClick={undo}
             disabled={!canUndo}
             title="Undo (Ctrl+Z)"
-            className="p-1.5 rounded hover:bg-editor-hover text-editor-subtext hover:text-editor-text disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="p-1.5 rounded-full hover:bg-white/[0.08] text-editor-subtext hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
           >
             <Undo2 className="w-3.5 h-3.5" />
           </button>
@@ -344,7 +371,7 @@ export const HeaderNav: React.FC = () => {
             onClick={redo}
             disabled={!canRedo}
             title="Redo (Ctrl+Y)"
-            className="p-1.5 rounded hover:bg-editor-hover text-editor-subtext hover:text-editor-text disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="p-1.5 rounded-full hover:bg-white/[0.08] text-editor-subtext hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
           >
             <Redo2 className="w-3.5 h-3.5" />
           </button>
@@ -354,10 +381,10 @@ export const HeaderNav: React.FC = () => {
         <button
           onClick={toggleSnapping}
           title={snappingEnabled ? 'Snapping Enabled (S)' : 'Snapping Disabled'}
-          className={`p-1.5 rounded-lg border transition-all ${
+          className={`p-2 rounded-xl transition-all cursor-pointer ${
             snappingEnabled
-              ? 'bg-accent-cyan/15 text-accent-cyan border-accent-cyan/40 shadow-glow-cyan'
-              : 'bg-editor-surface text-editor-dim border-editor-border hover:text-editor-text'
+              ? 'glass-pill-active'
+              : 'glass-pill text-editor-dim hover:text-editor-text'
           }`}
         >
           <Magnet className="w-4 h-4" />
@@ -367,10 +394,10 @@ export const HeaderNav: React.FC = () => {
         <button
           onClick={toggleRipple}
           title={rippleEnabled ? 'Ripple Edit: ON' : 'Ripple Edit: OFF'}
-          className={`p-1.5 rounded-lg border transition-all ${
+          className={`p-2 rounded-xl transition-all cursor-pointer ${
             rippleEnabled
-              ? 'bg-accent-purple/20 text-accent-purple border-accent-purple/40 shadow-glow-purple'
-              : 'bg-editor-surface text-editor-dim border-editor-border hover:text-editor-text'
+              ? 'bg-accent-purple/20 text-accent-purple border border-accent-purple/50 shadow-glow-purple backdrop-blur-md'
+              : 'glass-pill text-editor-dim hover:text-editor-text'
           }`}
         >
           <Layers className="w-4 h-4" />
@@ -380,7 +407,7 @@ export const HeaderNav: React.FC = () => {
         <button
           onClick={() => setSettingsModalOpen(true)}
           title="Project Settings"
-          className="p-1.5 rounded-lg bg-editor-surface text-editor-subtext hover:text-editor-text border border-editor-border transition-colors"
+          className="p-2 rounded-xl glass-pill text-editor-subtext hover:text-white transition-colors cursor-pointer"
         >
           <Settings className="w-4 h-4" />
         </button>
@@ -389,13 +416,13 @@ export const HeaderNav: React.FC = () => {
         <button
           onClick={toggleChatBot}
           title="AI Video Editing Assistant (Ctrl+J)"
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all cursor-pointer ${
             isChatBotOpen
-              ? 'bg-accent-cyan/20 text-accent-cyan border-accent-cyan/60 shadow-glow-cyan font-semibold'
-              : 'bg-editor-surface text-editor-subtext hover:text-accent-cyan border-editor-border hover:border-accent-cyan/40 shadow-sm'
+              ? 'glass-pill-active font-semibold'
+              : 'glass-pill text-editor-subtext hover:text-accent-cyan hover:border-accent-cyan/40'
           }`}
         >
-          <Sparkles className="w-3.5 h-3.5 text-accent-cyan" />
+          <Sparkles className="w-3.5 h-3.5 text-accent-cyan animate-pulse" />
           <span className="text-xs font-semibold">AI Co-Pilot</span>
         </button>
 
@@ -404,7 +431,7 @@ export const HeaderNav: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-editor-surface text-editor-text hover:text-white border border-editor-border hover:border-[#00D2FF]/40 transition-all text-xs font-medium cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-pill text-editor-text hover:text-white transition-all text-xs font-medium cursor-pointer"
             >
               <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-[#00D2FF] to-[#6C5CE7] flex items-center justify-center text-[10px] font-bold text-black uppercase shadow-sm">
                 {currentUser.name.charAt(0)}
@@ -415,10 +442,10 @@ export const HeaderNav: React.FC = () => {
 
             {userMenuOpen && (
               <div
-                className="absolute right-0 top-full mt-1.5 w-48 bg-editor-panel border border-editor-border rounded-xl shadow-2xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100"
+                className="absolute right-0 top-full mt-2 w-52 glass-panel rounded-2xl shadow-glass-lg border border-white/10 py-1.5 z-50 backdrop-blur-3xl bg-slate-950/85 animate-in fade-in zoom-in-95 duration-100"
                 onMouseLeave={() => setUserMenuOpen(false)}
               >
-                <div className="px-3 py-2 border-b border-editor-border">
+                <div className="px-3.5 py-2.5 border-b border-white/[0.08]">
                   <p className="text-xs font-semibold text-white truncate">{currentUser.name}</p>
                   <p className="text-[10px] text-editor-dim truncate">{currentUser.email}</p>
                 </div>
@@ -428,7 +455,7 @@ export const HeaderNav: React.FC = () => {
                     window.location.hash = '#login';
                     setCurrentPage('login');
                   }}
-                  className="w-full text-left px-3 py-2 text-xs text-editor-text hover:bg-editor-surface flex items-center gap-2 cursor-pointer"
+                  className="w-full text-left px-3.5 py-2 text-xs text-editor-text hover:bg-white/[0.08] rounded-xl flex items-center gap-2 cursor-pointer transition-colors"
                 >
                   <User className="w-3.5 h-3.5 text-accent-cyan" /> Switch / Account
                 </button>
@@ -444,7 +471,7 @@ export const HeaderNav: React.FC = () => {
                       message: 'You have returned to the login screen.',
                     });
                   }}
-                  className="w-full text-left px-3 py-2 text-xs text-rose-400 hover:bg-editor-surface flex items-center gap-2 cursor-pointer"
+                  className="w-full text-left px-3.5 py-2 text-xs text-rose-400 hover:bg-rose-500/10 rounded-xl flex items-center gap-2 cursor-pointer transition-colors"
                 >
                   <LogOut className="w-3.5 h-3.5" /> Sign Out
                 </button>
@@ -458,21 +485,22 @@ export const HeaderNav: React.FC = () => {
               setCurrentPage('login');
             }}
             title="Sign In / Account"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-editor-surface text-editor-subtext hover:text-white border border-editor-border hover:border-white/20 transition-all text-xs font-medium cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-pill text-editor-subtext hover:text-white transition-all text-xs font-medium cursor-pointer"
           >
             <User className="w-3.5 h-3.5 text-editor-subtext" />
             <span className="hidden sm:inline">Sign In</span>
           </button>
         )}
 
-        {/* Export CTA Button */}
-        <button
+        {/* Export CTA Button with Animated Border Beam & Shimmer */}
+        <AnimatedButton
+          variant="cyan"
           onClick={() => setExportModalOpen(true)}
-          className="ml-1 px-4 py-1.5 rounded-xl bg-gradient-to-r from-accent-cyan to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-black font-semibold text-xs flex items-center gap-1.5 shadow-glow-cyan hover:shadow-cyan-400/40 transition-all transform active:scale-95"
+          className="ml-1 text-xs py-1.5 px-4 h-8 font-bold shadow-glow-cyan"
         >
           <Download className="w-3.5 h-3.5 text-black stroke-[2.5]" />
           <span>Export Video</span>
-        </button>
+        </AnimatedButton>
       </div>
     </header>
   );

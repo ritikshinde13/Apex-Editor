@@ -98,26 +98,26 @@ export const ExportModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-      <div className="bg-editor-panel border border-editor-border rounded-2xl max-w-lg w-full p-6 shadow-2xl relative select-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xl p-4 animate-in fade-in duration-150">
+      <div className="glass-panel rounded-3xl max-w-lg w-full p-7 shadow-glass-lg backdrop-blur-3xl bg-slate-950/80 border border-white/15 relative select-none specular-border">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-editor-border">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-accent-cyan/15 text-accent-cyan flex items-center justify-center">
-              <Download className="w-4 h-4" />
+        <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-accent-cyan to-blue-500 text-black flex items-center justify-center shadow-glow-cyan">
+              <Download className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-editor-text">Export Timeline Video</h3>
-              <p className="text-xs text-editor-dim">Render your project to a playable video file</p>
+              <h3 className="text-base font-bold text-white drop-shadow-sm">Export Timeline Video</h3>
+              <p className="text-xs text-editor-dim">Render client-side video with full hardware acceleration</p>
             </div>
           </div>
 
           {!isExporting && (
             <button
               onClick={() => setExportModalOpen(false)}
-              className="p-1 rounded-lg hover:bg-editor-surface text-editor-dim hover:text-editor-text transition-colors"
+              className="p-1.5 rounded-full glass-pill hover:bg-white/[0.1] text-editor-dim hover:text-white transition-all cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -133,10 +133,10 @@ export const ExportModal: React.FC = () => {
                   <button
                     key={r}
                     onClick={() => setResolution(r)}
-                    className={`py-2 rounded-xl text-xs font-bold uppercase transition-all border ${
+                    className={`py-2 rounded-2xl text-xs font-bold uppercase transition-all cursor-pointer ${
                       resolution === r
-                        ? 'bg-accent-cyan/15 text-accent-cyan border-accent-cyan shadow-glow-cyan'
-                        : 'bg-editor-surface text-editor-subtext border-editor-border hover:text-editor-text'
+                        ? 'glass-pill-active'
+                        : 'glass-pill text-editor-subtext hover:text-white'
                     }`}
                   >
                     {r}
@@ -153,13 +153,13 @@ export const ExportModal: React.FC = () => {
                   <button
                     key={f}
                     onClick={() => setFps(f)}
-                    className={`py-2 rounded-xl text-xs font-semibold transition-all border ${
+                    className={`py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
                       fps === f
-                        ? 'bg-accent-cyan/15 text-accent-cyan border-accent-cyan shadow-glow-cyan'
-                        : 'bg-editor-surface text-editor-subtext border-editor-border hover:text-editor-text'
+                        ? 'glass-pill-active'
+                        : 'glass-pill text-editor-subtext hover:text-white'
                     }`}
                   >
-                    {f} FPS {f === 24 ? '(Cinema)' : f === 60 ? '(High Motion)' : '(Standard)'}
+                    {f} FPS {f === 24 ? '(Cinema)' : f === 60 ? '(Fluid)' : '(Standard)'}
                   </button>
                 ))}
               </div>
@@ -174,10 +174,10 @@ export const ExportModal: React.FC = () => {
                     <button
                       key={fmt}
                       onClick={() => setFormat(fmt)}
-                      className={`py-2 rounded-xl text-xs font-bold uppercase transition-all border ${
+                      className={`py-2 rounded-2xl text-xs font-bold uppercase transition-all cursor-pointer ${
                         format === fmt
-                          ? 'bg-accent-cyan/15 text-accent-cyan border-accent-cyan'
-                          : 'bg-editor-surface text-editor-subtext border-editor-border'
+                          ? 'glass-pill-active'
+                          : 'glass-pill text-editor-subtext hover:text-white'
                       }`}
                     >
                       {fmt}
@@ -191,24 +191,24 @@ export const ExportModal: React.FC = () => {
                 <select
                   value={quality}
                   onChange={(e) => setQuality(e.target.value as 'low' | 'medium' | 'high')}
-                  className="w-full bg-editor-surface border border-editor-border rounded-xl px-3 py-2 text-xs text-editor-text focus:outline-none focus:border-accent-cyan"
+                  className="w-full glass-pill rounded-2xl px-3.5 py-2 text-xs text-editor-text focus:outline-none focus:border-accent-cyan cursor-pointer"
                 >
-                  <option value="low">Low (Faster, smaller file)</option>
-                  <option value="medium">Medium (Standard)</option>
-                  <option value="high">High (Best visual fidelity)</option>
+                  <option value="low" className="bg-slate-900 text-white">Low (Faster, smaller file)</option>
+                  <option value="medium" className="bg-slate-900 text-white">Medium (Standard)</option>
+                  <option value="high" className="bg-slate-900 text-white">High (Best visual fidelity)</option>
                 </select>
               </div>
             </div>
 
-            {/* Estimated Information Summary */}
-            <div className="bg-editor-surface/60 border border-editor-border rounded-xl p-3 flex items-center justify-between text-xs text-editor-dim">
+            {/* Estimated Information Summary in Frosted Glass Card */}
+            <div className="glass-card rounded-2xl p-3.5 flex items-center justify-between text-xs text-editor-dim border border-white/10">
               <div>
                 <span>Duration: </span>
-                <span className="font-mono text-editor-text">{totalDuration.toFixed(1)}s</span>
+                <span className="font-mono text-accent-cyan font-bold">{totalDuration.toFixed(1)}s</span>
               </div>
               <div>
                 <span>Output: </span>
-                <span className="font-mono text-editor-text">
+                <span className="font-mono text-white font-semibold">
                   {resolutionDimensions[resolution].width}x{resolutionDimensions[resolution].height} @ {fps}fps
                 </span>
               </div>
@@ -218,34 +218,34 @@ export const ExportModal: React.FC = () => {
           /* Live Export Rendering Progress */
           <div className="py-8 flex flex-col items-center justify-center space-y-4">
             <div className="relative flex items-center justify-center">
-              <Loader2 className="w-14 h-14 text-accent-cyan animate-spin stroke-1" />
-              <span className="absolute font-mono text-sm font-bold text-editor-text">
+              <Loader2 className="w-16 h-16 text-accent-cyan animate-spin stroke-1 drop-shadow-[0_0_12px_rgba(0,229,255,0.6)]" />
+              <span className="absolute font-mono text-sm font-bold text-white">
                 {progress}%
               </span>
             </div>
 
             <div className="text-center">
-              <h4 className="text-sm font-bold text-editor-text">Rendering Video Composition...</h4>
+              <h4 className="text-sm font-bold text-white">Rendering Composition...</h4>
               <p className="text-xs text-editor-dim mt-1">
                 Compositing layers and audio tracks into {format.toUpperCase()}
               </p>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full bg-editor-surface h-2.5 rounded-full overflow-hidden border border-editor-border">
+            <div className="w-full bg-black/60 h-2.5 rounded-full overflow-hidden border border-white/10 shadow-inner">
               <div
                 style={{ width: `${progress}%` }}
-                className="h-full bg-gradient-to-r from-accent-cyan to-accent-purple transition-all duration-150 rounded-full"
+                className="h-full bg-gradient-to-r from-accent-cyan via-blue-500 to-accent-purple transition-all duration-150 rounded-full shadow-glow-cyan"
               />
             </div>
           </div>
         )}
 
         {/* Footer Actions */}
-        <div className="flex justify-end gap-3 pt-3 border-t border-editor-border">
+        <div className="flex justify-end gap-3 pt-3 border-t border-white/[0.08]">
           <button
             onClick={handleCancel}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-editor-subtext hover:text-editor-text bg-editor-surface hover:bg-editor-hover border border-editor-border transition-colors"
+            className="px-4 py-2 rounded-2xl text-xs font-semibold text-editor-subtext hover:text-white glass-pill transition-colors cursor-pointer"
           >
             {isExporting ? 'Cancel Export' : 'Cancel'}
           </button>
@@ -253,7 +253,7 @@ export const ExportModal: React.FC = () => {
           {!isExporting && (
             <button
               onClick={handleStartExport}
-              className="px-5 py-2 rounded-xl bg-gradient-to-r from-accent-cyan to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-black font-bold text-xs shadow-glow-cyan transition-all flex items-center gap-1.5"
+              className="px-5 py-2 rounded-2xl bg-gradient-to-r from-accent-cyan to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-black font-bold text-xs shadow-glow-cyan transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105"
             >
               <Download className="w-4 h-4 stroke-[2.5]" />
               <span>Start Export</span>

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useEditorStore } from '@/store/useEditorStore';
 import { usePlaybackStore } from '@/store/usePlaybackStore';
 import { useUIStore } from '@/store/useUIStore';
 import { TimelineClip } from '@/types/timeline';
+import { generateUniqueId } from '@/utils/id';
 import { Plus } from 'lucide-react';
 
 interface TextPreset {
@@ -72,12 +73,12 @@ export const TextTemplates: React.FC = () => {
   const { currentTime } = usePlaybackStore();
   const { showToast } = useUIStore();
 
-  const handleAddText = (preset: TextPreset) => {
+  const handleAddText = useCallback((preset: TextPreset) => {
     // Find text track or default to first track
     const textTrack = tracks.find((t) => t.type === 'text') || tracks[0];
 
     const newClip: TimelineClip = {
-      id: `clip-text-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      id: generateUniqueId('clip-text'),
       trackId: textTrack.id,
       type: 'text',
       title: preset.name,
@@ -134,7 +135,7 @@ export const TextTemplates: React.FC = () => {
       title: 'Text Added',
       message: `"${preset.name}" placed on timeline at ${currentTime.toFixed(1)}s`,
     });
-  };
+  }, [tracks, currentTime, addClip, showToast]);
 
   return (
     <div className="flex flex-col h-full bg-editor-panel p-3 select-none">

@@ -7,11 +7,11 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6?style=for-the-badge&logo=typescript)
 ![Vite](https://img.shields.io/badge/Bundler-Vite%208-646cff?style=for-the-badge&logo=vite)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=for-the-badge&logo=tailwindcss)
-![Vitest](https://img.shields.io/badge/Tests-42%2F42%20Passing-10b981?style=for-the-badge&logo=vitest)
+![Vitest](https://img.shields.io/badge/Tests-62%2F62%20Passing-10b981?style=for-the-badge&logo=vitest)
 
-**A modern, high-performance Non-Linear Video Editor (NLE) engineered for seamless browser-based editing with desktop-grade responsiveness.**
+**A modern, high-performance Non-Linear Video Editor (NLE) & Marketing Landing Suite engineered for seamless browser-based editing with desktop-grade responsiveness.**
 
-[Features](#-key-features) • [Architecture](#-system-architecture) • [Workspace Layout](#-workspace-layout) • [Getting Started](#-getting-started) • [Shortcuts](#-keyboard-shortcuts)
+[Landing Page](#-responsive-marketing-landing-page) • [Features](#-key-features) • [Architecture](#-system-architecture) • [Workspace Layout](#-workspace-layout) • [Getting Started](#-getting-started) • [Shortcuts](#-keyboard-shortcuts)
 
 </div>
 
@@ -96,6 +96,28 @@ Apex Editor organizes complex NLE capabilities into an intuitive 4-quadrant layo
 │               │                          ▲ (Playhead Red Needle)                                │
 └───────────────┴─────────────────────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## 🌟 Responsive Marketing Landing Page
+
+Apex Editor includes a mobile-first, SaaS marketing landing page engineered with React, Tailwind CSS, and Lucide icons:
+
+- **Clean SaaS Brand System**: White background with soft rounded elevation cards, `#3B82F6` primary blue CTA, and `#00C9A7` mint/teal accents.
+- **Sticky Header**: Left brand monogram and wordmark; desktop navigation links; mobile drawer with animated toggle.
+- **Interactive Hero Showcase**: Headline *"Create your own video and edit it in any way — on both your phone and computer"*, primary CTA, and an interactive phone mockup featuring a live timeline scrubber, video preview monitor, and "My Media" thumbnail asset pool.
+- **Value Proposition**: Multitrack timeline editing, background music mixing, and distraction-free single-screen editing across 3 value pillars and stats highlights.
+- **5 Core Feature Deep-Dives**:
+  1. *Add text to your video* (interactive font, color, and size sliders over photo)
+  2. *Picture-in-picture & split-screen* (dual video tracks with corner reaction camera)
+  3. *Aspect Ratio Presets* (16:9, 9:16, 1:1, 4:5, 21:9 with live preview frame)
+  4. *Different Settings* (speed control 0.25x–4x, volume, brightness, and contrast)
+  5. *Completely Online* (100% in-browser WebAssembly client-side engine)
+- **Reusable Tool Grid**: Array-driven grid of format- and platform-specific tools (*WEBM Editor, WMV Editor, TikTok Video Editor, Instagram Video Editor, YouTube Video Editor, Video Editor for Mac, Video Editor for Windows, MP4 Cutter, etc.*) with instant filter tabs.
+- **Accessible FAQ Accordion**: Expandable/collapsible FAQ with ARIA attributes.
+- **App Download Banner**: Cross-device sync copy with Apple App Store and Google Play badge buttons.
+- **Educational Resources**: 4 creator guide cards with interactive in-app modal reader.
+- **Footer**: Categorized product, tools, company, legal links, and social SVGs.
 
 ---
 
@@ -216,13 +238,16 @@ npm test
 
 Expected result:
 ```
-✓ tests/unit/timeline.test.ts (7 tests)
-  ✓ Timecode and Frame Calculations (4 tests)
-  ✓ Magnetic Snapping Math (2 tests)
-  ✓ Undo / Redo History Ring Buffer (1 test)
+ ✓ tests/unit/spatial3d.test.ts (4 tests)
+ ✓ tests/unit/timeline.test.ts (7 tests)
+ ✓ tests/unit/auth.test.ts (4 tests)
+ ✓ tests/unit/filters.test.ts (13 tests)
+ ✓ tests/unit/duration.test.ts (8 tests)
+ ✓ tests/unit/chatbot.test.ts (22 tests)
+ ✓ tests/unit/landing.test.ts (4 tests)
 
-Test Files  1 passed (1)
-Tests       7 passed (7)
+Test Files  7 passed (7)
+Tests       62 passed (62)
 ```
 
 ---

@@ -9,13 +9,16 @@ export default {
     extend: {
       colors: {
         editor: {
-          bg: '#0a0b0e',          // Canvas and deepest background
-          panel: '#12141a',       // Sidebar, inspector docks
-          surface: '#181b24',     // Cards, tracks, controls
-          hover: '#222634',       // Hover states
-          border: '#2a2f3f',      // Dividers and outlines
-          muted: '#3b4256',       // Muted borders/indicators
-          text: '#f3f4f6',        // Primary white text
+          bg: '#050608',          // Deepest obsidian backdrop
+          glass: 'rgba(16, 20, 30, 0.72)', // Primary frosted glass panel
+          panel: 'rgba(13, 16, 24, 0.78)', // Dock panels
+          surface: 'rgba(255, 255, 255, 0.04)', // Translucent card surface
+          hover: 'rgba(255, 255, 255, 0.08)',   // Translucent hover
+          active: 'rgba(0, 229, 255, 0.12)',  // Glowing active state
+          border: 'rgba(255, 255, 255, 0.08)',  // Subtle frosted glass border
+          borderLight: 'rgba(255, 255, 255, 0.15)', // Highlight border
+          muted: 'rgba(255, 255, 255, 0.20)',   // Muted indicators
+          text: '#f9fafb',        // Crisp white primary text
           subtext: '#9ca3af',     // Secondary slate text
           dim: '#6b7280',         // Tertiary icon/shortcut text
         },
@@ -34,9 +37,12 @@ export default {
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       boxShadow: {
-        'glow-cyan': '0 0 15px -3px rgba(0, 229, 255, 0.3)',
-        'glow-purple': '0 0 15px -3px rgba(139, 92, 246, 0.3)',
-        'panel': '0 4px 20px -2px rgba(0, 0, 0, 0.5)',
+        'glow-cyan': '0 0 20px -2px rgba(0, 229, 255, 0.45)',
+        'glow-purple': '0 0 20px -2px rgba(139, 92, 246, 0.45)',
+        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
+        'glass-sm': '0 4px 16px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.08)',
+        'glass-lg': '0 16px 48px -4px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.15)',
+        'panel': '0 8px 32px -4px rgba(0, 0, 0, 0.6)',
       },
     },
   },

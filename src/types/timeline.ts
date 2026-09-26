@@ -4,8 +4,14 @@ export type ClipType = 'video' | 'audio' | 'text' | 'image';
 export interface TransformProperties {
   x: number;          // Pixel translation X from center
   y: number;          // Pixel translation Y from center
+  z?: number;         // 3D Depth translation Z (-1000 to 1000px, default 0)
   scale: number;      // 1.0 = 100%
-  rotation: number;   // In degrees (-180 to 180)
+  rotation: number;   // In degrees (-180 to 180) - 2D / Z rotation
+  rotateX?: number;   // 3D Tilt Pitch in degrees (-180 to 180, default 0)
+  rotateY?: number;   // 3D Yaw in degrees (-180 to 180, default 0)
+  rotateZ?: number;   // 3D Roll in degrees (-180 to 180, default 0)
+  perspective?: number; // 3D Camera distance in pixels (default 1000)
+  depthShadow?: boolean; // Dynamic 3D depth shadow (default false)
   opacity: number;    // 0.0 to 1.0
   cropTop: number;    // Percentage (0 - 100)
   cropBottom: number;

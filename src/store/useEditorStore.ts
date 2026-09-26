@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { TimelineClip, TimelineTrack, TrackType, TransformProperties, VideoAdjustments, AudioAdjustments, TextProperties } from '@/types/timeline';
 import { historyManager } from './history';
+import { generateUniqueId } from '@/utils/id';
 
 interface EditorState {
   tracks: TimelineTrack[];
@@ -85,7 +86,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const { tracks, clips } = get();
     historyManager.recordState(tracks, clips, `Add ${type} track`);
     const newTrack: TimelineTrack = {
-      id: `track-${type}-${Date.now()}`,
+      id: generateUniqueId(`track-${type}`),
       type,
       index: tracks.length,
       name: `${type.toUpperCase()} ${tracks.filter((t) => t.type === type).length + 1}`,
@@ -217,7 +218,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
     const secondClip: TimelineClip = {
       ...JSON.parse(JSON.stringify(clip)),
-      id: `clip-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      id: generateUniqueId('clip'),
       startTimeOnTimeline: playheadTime,
       duration: secondDuration,
       inPoint: clip.inPoint + mediaOffsetDelta,

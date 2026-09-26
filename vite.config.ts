@@ -42,6 +42,8 @@ export default defineConfig({
     },
   },
   server: {
+    host: true,
+    allowedHosts: true,
     headers: {
       // Required for SharedArrayBuffer if ffmpeg.wasm multi-threading is used
       'Cross-Origin-Opener-Policy': 'same-origin',

@@ -9,7 +9,7 @@ describe('Auth & Login Page Integration', () => {
   });
 
   it('initializes with currentPage', () => {
-    expect(['editor', 'login']).toContain(useUIStore.getState().currentPage);
+    expect(['editor', 'login', 'landing']).toContain(useUIStore.getState().currentPage);
   });
 
   it('updates currentPage to login and back to editor', () => {

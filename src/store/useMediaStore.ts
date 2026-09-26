@@ -6,6 +6,7 @@ import {
   extractAudioTrackDuration,
   resolveVideoElementDuration,
 } from '@/utils/mediaDuration';
+import { generateUniqueId } from '@/utils/id';
 
 interface MediaState {
   items: MediaItem[];
@@ -52,7 +53,7 @@ export const useMediaStore = create<MediaState>((set, get) => ({
 
     for (const file of Array.from(files)) {
       try {
-        const id = `media-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+        const id = generateUniqueId('media');
         let mediaType: MediaType = 'video';
 
         if (file.type.startsWith('video/')) {

@@ -21,31 +21,31 @@ export const LeftDock: React.FC = () => {
   ];
 
   return (
-    <aside className="w-80 h-full bg-editor-panel border-r border-editor-border flex flex-row select-none shrink-0 z-10">
+    <aside className="w-80 h-full backdrop-blur-2xl bg-editor-panel/70 border-r border-white/[0.08] shadow-glass flex flex-row select-none shrink-0 z-10 specular-border">
       {/* Icon Tab Strip */}
-      <div className="w-16 h-full bg-editor-bg border-r border-editor-border flex flex-col items-center py-3 gap-2 shrink-0">
+      <div className="w-16 h-full backdrop-blur-xl bg-black/30 border-r border-white/[0.06] flex flex-col items-center py-4 gap-2.5 shrink-0">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-1 transition-all ${
+              className={`w-11 h-11 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30 shadow-glow-cyan'
-                  : 'text-editor-dim hover:text-editor-text hover:bg-editor-surface'
+                  ? 'bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/40 shadow-glow-cyan scale-105 backdrop-blur-md'
+                  : 'text-editor-dim hover:text-white hover:bg-white/[0.05] border border-transparent'
               }`}
               title={tab.label}
             >
               {tab.icon}
-              <span className="text-[9px] font-medium tracking-tight">{tab.label}</span>
+              <span className="text-[9px] font-semibold tracking-tight">{tab.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* Active Tab Panel */}
-      <div className="flex-1 h-full overflow-hidden">
+      {/* Active Tab Panel with frosted backdrop */}
+      <div className="flex-1 h-full overflow-hidden bg-black/15 backdrop-blur-md">
         {activeTab === 'media' && <MediaLibrary />}
         {activeTab === 'audio' && <AudioLibrary />}
         {activeTab === 'text' && <TextTemplates />}

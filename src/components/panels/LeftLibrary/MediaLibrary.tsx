@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { useMediaStore } from '@/store/useMediaStore';
 import { useEditorStore } from '@/store/useEditorStore';
 import { usePlaybackStore } from '@/store/usePlaybackStore';
@@ -6,6 +6,7 @@ import { useUIStore } from '@/store/useUIStore';
 import { MediaItem } from '@/types/media';
 import { TimelineClip } from '@/types/timeline';
 import { formatCompactTime } from '@/utils/timecode';
+import { generateUniqueId } from '@/utils/id';
 import {
   UploadCloud,
   Film,
@@ -60,7 +61,7 @@ export const MediaLibrary: React.FC = () => {
     }
   };
 
-  const handleAddMediaToTimeline = (media: MediaItem) => {
+  const handleAddMediaToTimeline = useCallback((media: MediaItem) => {
     // Find matching track
     let targetTrack = tracks.find((t) => {
       if (media.type === 'video' || media.type === 'image') return t.type === 'video' && !t.isLocked;
@@ -75,7 +76,7 @@ export const MediaLibrary: React.FC = () => {
     const clipDuration = media.duration > 0 ? media.duration : 5.0; // 5s for static images
 
     const newClip: TimelineClip = {
-      id: `clip-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      id: generateUniqueId('clip'),
       trackId: targetTrack.id,
       mediaId: media.id,
       type: media.type === 'image' ? 'image' : media.type === 'audio' ? 'audio' : 'video',
@@ -121,7 +122,7 @@ export const MediaLibrary: React.FC = () => {
       title: 'Added to Timeline',
       message: `${media.name} added at ${formatCompactTime(currentTime)}`,
     });
-  };
+  }, [tracks, currentTime, addClip, showToast]);
 
   const filteredItems = items.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -130,7 +131,7 @@ export const MediaLibrary: React.FC = () => {
   });
 
   return (
-    <div className="flex flex-col h-full bg-editor-panel select-none">
+    <div className="flex flex-col h-full bg-transparent select-none">
       {/* Hidden file input */}
       <input
         type="file"
@@ -142,20 +143,20 @@ export const MediaLibrary: React.FC = () => {
       />
 
       {/* Header & Import Action */}
-      <div className="p-3 border-b border-editor-border flex flex-col gap-2.5">
+      <div className="p-3.5 border-b border-white/[0.08] flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-editor-text uppercase tracking-wider">
+          <span className="text-xs font-bold text-editor-text uppercase tracking-wider drop-shadow-sm">
             Media Pool
           </span>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-1 bg-accent-cyan hover:bg-cyan-400 text-black text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-sm"
+            className="px-3 py-1 bg-accent-cyan hover:bg-cyan-300 text-black text-xs font-bold rounded-full flex items-center gap-1.5 transition-all shadow-glow-cyan/50 hover:scale-105 cursor-pointer"
           >
             <UploadCloud className="w-3.5 h-3.5" /> Import
           </button>
         </div>
 
-        {/* Drag & Drop Box */}
+        {/* Drag & Drop Box with frosted glass */}
         <div
           onDragOver={(e) => {
             e.preventDefault();
@@ -164,43 +165,43 @@ export const MediaLibrary: React.FC = () => {
           onDragLeave={() => setIsDragOver(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-xl p-3 text-center cursor-pointer transition-all ${
+          className={`border border-dashed rounded-2xl p-3 text-center cursor-pointer transition-all ${
             isDragOver
-              ? 'border-accent-cyan bg-accent-cyan/10'
-              : 'border-editor-border hover:border-editor-muted bg-editor-surface/60'
+              ? 'border-accent-cyan bg-accent-cyan/15 shadow-glow-cyan/30'
+              : 'border-white/10 hover:border-accent-cyan/40 glass-card'
           }`}
         >
           <div className="flex flex-col items-center gap-1 text-editor-subtext">
-            <UploadCloud className="w-5 h-5 text-accent-cyan" />
-            <p className="text-[11px] font-medium text-editor-text">
+            <UploadCloud className="w-5 h-5 text-accent-cyan animate-pulse" />
+            <p className="text-[11px] font-semibold text-editor-text">
               {isImporting ? 'Processing files...' : 'Drag & drop media files here'}
             </p>
             <span className="text-[10px] text-editor-dim">MP4, WebM, MOV, MP3, WAV, PNG, JPG</span>
           </div>
         </div>
 
-        {/* Search Bar */}
+        {/* Search Bar with Glass Pill */}
         <div className="relative">
-          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-editor-dim" />
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-editor-dim" />
           <input
             type="text"
             placeholder="Search assets..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-editor-surface border border-editor-border rounded-lg pl-8 pr-3 py-1.5 text-xs text-editor-text placeholder-editor-dim focus:outline-none focus:border-accent-cyan/50"
+            className="w-full glass-pill rounded-xl pl-8 pr-3 py-1.5 text-xs text-editor-text placeholder-editor-dim focus:outline-none focus:border-accent-cyan/50 focus:shadow-glow-cyan/20"
           />
         </div>
 
         {/* Filter Pills */}
-        <div className="flex gap-1 overflow-x-auto text-[11px] pb-0.5">
+        <div className="flex gap-1.5 overflow-x-auto text-[11px] pb-0.5">
           {(['all', 'video', 'audio', 'image'] as const).map((t) => (
             <button
               key={t}
               onClick={() => setFilterType(t)}
-              className={`px-2.5 py-1 rounded-md capitalize transition-colors font-medium ${
+              className={`px-3 py-1 rounded-full capitalize transition-all font-medium cursor-pointer ${
                 filterType === t
-                  ? 'bg-editor-hover text-accent-cyan border border-accent-cyan/30'
-                  : 'text-editor-subtext hover:text-editor-text bg-editor-surface'
+                  ? 'glass-pill-active font-semibold'
+                  : 'glass-pill text-editor-subtext hover:text-white'
               }`}
             >
               {t}
@@ -214,17 +215,17 @@ export const MediaLibrary: React.FC = () => {
         {filteredItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-center p-4">
             <Film className="w-8 h-8 text-editor-muted mb-2 stroke-1" />
-            <p className="text-xs font-medium text-editor-subtext">No media assets found</p>
+            <p className="text-xs font-semibold text-editor-subtext">No media assets found</p>
             <p className="text-[11px] text-editor-dim mt-1">Import footage to begin editing</p>
           </div>
         ) : (
           filteredItems.map((item) => (
             <div
               key={item.id}
-              className="group flex items-center gap-3 p-2 bg-editor-surface hover:bg-editor-hover border border-editor-border hover:border-editor-muted rounded-xl transition-all shadow-sm"
+              className="group flex items-center gap-3 p-2.5 glass-card rounded-2xl hover:border-accent-cyan/40 transition-all shadow-glass-sm"
             >
               {/* Thumbnail / Icon */}
-              <div className="w-14 h-10 rounded-lg overflow-hidden bg-black flex items-center justify-center shrink-0 border border-editor-border relative">
+              <div className="w-14 h-10 rounded-xl overflow-hidden bg-black/80 flex items-center justify-center shrink-0 border border-white/10 relative shadow-inner">
                 {item.thumbnailUrl ? (
                   <img src={item.thumbnailUrl} alt={item.name} className="w-full h-full object-cover" />
                 ) : item.type === 'audio' ? (
@@ -247,7 +248,7 @@ export const MediaLibrary: React.FC = () => {
                   {item.name}
                 </h4>
                 <div className="flex items-center gap-2 text-[10px] text-editor-dim mt-0.5">
-                  <span className="uppercase">{item.type}</span>
+                  <span className="uppercase font-medium text-accent-cyan/90">{item.type}</span>
                   <span>•</span>
                   <span>{(item.sizeBytes / (1024 * 1024)).toFixed(1)} MB</span>
                 </div>
@@ -258,14 +259,14 @@ export const MediaLibrary: React.FC = () => {
                 <button
                   onClick={() => handleAddMediaToTimeline(item)}
                   title="Add to Timeline at playhead"
-                  className="p-1.5 rounded-lg bg-accent-cyan/15 hover:bg-accent-cyan text-accent-cyan hover:text-black transition-colors"
+                  className="p-1.5 rounded-xl bg-accent-cyan/15 hover:bg-accent-cyan text-accent-cyan hover:text-black transition-all cursor-pointer shadow-sm"
                 >
                   <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
                 <button
                   onClick={() => removeMediaItem(item.id)}
                   title="Remove from Media Pool"
-                  className="p-1.5 rounded-lg hover:bg-accent-danger/20 text-editor-dim hover:text-accent-danger transition-colors"
+                  className="p-1.5 rounded-xl hover:bg-rose-500/20 text-editor-dim hover:text-rose-400 transition-all cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>

@@ -51,7 +51,7 @@ export const ChatBotModal: React.FC = () => {
     }
   });
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [
     {
       id: 'welcome-msg',
       role: 'assistant',
@@ -69,6 +69,7 @@ export const ChatBotModal: React.FC = () => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const handleSendMessageRef = useRef<(textToSend?: string) => Promise<void>>(async () => {});
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -106,7 +107,7 @@ export const ChatBotModal: React.FC = () => {
         const transcript = event.results[0][0].transcript;
         if (transcript) {
           setInput(transcript);
-          handleSendMessage(transcript);
+          handleSendMessageRef.current(transcript);
         }
       };
 
@@ -179,6 +180,10 @@ export const ChatBotModal: React.FC = () => {
       setIsProcessing(false);
     }
   };
+
+  useEffect(() => {
+    handleSendMessageRef.current = handleSendMessage;
+  });
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
